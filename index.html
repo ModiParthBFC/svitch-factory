@@ -1,0 +1,896 @@
+<title>Svitch Factory — Empty Shell</title>
+<style>
+  *{margin:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font:14px/1.4 "Segoe UI",system-ui,sans-serif; color:#e9e4d8;
+    background:#0b0d10; overflow:hidden; height:100vh;
+  }
+  button{font:inherit; color:inherit; cursor:pointer; background:none; border:none}
+  button:focus-visible{outline:2px solid #7fb894; outline-offset:2px}
+
+  #stageView{
+    position:fixed; inset:0; overflow:hidden;
+    perspective:900px; touch-action:none; user-select:none; -webkit-user-select:none;
+    background:linear-gradient(#1a222b 30%, #11161c);
+    cursor:grab;
+  }
+  #stageView:active{cursor:grabbing}
+  #scene{
+    position:absolute; left:50%; top:50%; width:0; height:0;
+    transform-style:preserve-3d; will-change:transform;
+  }
+  #world,.grp,.box{position:absolute; left:0; top:0; width:0; height:0; transform-style:preserve-3d}
+  .face{position:absolute; backface-visibility:hidden}
+  .flat3{position:absolute}
+
+  .hud{
+    position:fixed; z-index:20; background:rgba(10,13,18,.78); border:1px solid rgba(255,255,255,.14);
+    border-radius:11px; padding:9px 14px; backdrop-filter:blur(6px);
+  }
+  #hudTitle{top:14px; left:14px}
+  #hudTitle h1{font:italic 600 19px/1.15 Georgia,"Times New Roman",serif; letter-spacing:.3px}
+  #hudTitle h1 b{color:#ff5c8a; font-style:normal}
+  #hudTitle p{font-size:11.5px; color:#9aa3ad; margin-top:2px; letter-spacing:.06em; text-transform:uppercase}
+  #hudKeys{bottom:14px; left:14px; font-size:12px; color:#c3c9d1}
+  #hudKeys b{
+    display:inline-block; min-width:20px; text-align:center; padding:1px 5px; margin:0 1px;
+    background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); border-radius:5px;
+    font-size:11px; font-family:Consolas,ui-monospace,monospace;
+  }
+  #hudBtns{bottom:14px; right:14px; display:flex; gap:8px; padding:6px}
+  .hbtn{
+    padding:6px 14px; border:1px solid rgba(255,255,255,.2); border-radius:999px; font-size:12.5px;
+    color:#c3c9d1; background:rgba(255,255,255,.05);
+  }
+  .hbtn:hover{border-color:#7fb894; color:#aee5c3}
+  .hbtn.on{background:#3f6b54; border-color:#3f6b54; color:#fff}
+
+  #minimap{
+    position:fixed; top:14px; right:14px; z-index:20; width:124px; height:340px;
+    background:rgba(8,11,15,.85); border:1px solid rgba(255,255,255,.16); border-radius:10px;
+    backdrop-filter:blur(6px); cursor:crosshair;
+  }
+  #mmInner{position:absolute; left:12px; top:14px}
+  #minimap .mm{position:absolute}
+  #mmPlayer{
+    position:absolute; width:0; height:0; z-index:5;
+    border-left:5px solid transparent; border-right:5px solid transparent;
+    border-bottom:10px solid #7fe0a0; filter:drop-shadow(0 0 4px #7fe0a0);
+    margin-left:-5px; margin-top:-6px;
+  }
+  #mmBike{
+    position:absolute; width:7px; height:7px; border-radius:50%; z-index:4;
+    background:#ff5c8a; box-shadow:0 0 6px #ff5c8a; margin-left:-3.5px; margin-top:-3.5px;
+  }
+  #mmLabel{
+    position:absolute; left:8px; bottom:5px; font-size:9px; letter-spacing:.12em;
+    color:#8b95a0; text-transform:uppercase;
+  }
+
+  #dpad{display:none; position:fixed; bottom:70px; left:50%; transform:translateX(-50%); z-index:20; gap:6px}
+  #dpad .dbtn{
+    width:52px; height:52px; border-radius:12px; background:rgba(10,13,18,.7);
+    border:1px solid rgba(255,255,255,.2); color:#c3c9d1; font-size:19px;
+  }
+  @media (pointer:coarse){
+    #dpad{display:flex}
+    #hudKeys{display:none}
+  }
+  #vignette{
+    position:fixed; inset:0; z-index:10; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 72%, rgba(4,7,12,.26));
+  }
+  .led{
+    background:linear-gradient(115deg,#ff2d78,#7a3cff 30%,#00c8ff 55%,#ff9d2d 80%,#ff2d78);
+    background-size:280% 100%;
+    animation:ledpan 8s linear infinite;
+  }
+  @keyframes ledpan{from{background-position:0 0}to{background-position:-280% 0}}
+  @media (prefers-reduced-motion: reduce){.led{animation:none}}
+</style>
+
+<div id="stageView">
+  <div id="scene"><div id="world"></div></div>
+</div>
+<div id="vignette"></div>
+
+<div class="hud" id="hudTitle">
+  <h1><b>SVITCH</b> · Factory Shell</h1>
+  <p>132 × 45 × 12 m — empty hood</p>
+</div>
+<div class="hud" id="hudKeys">
+  <b>W</b><b>A</b><b>S</b><b>D</b> walk&nbsp;&nbsp;·&nbsp;&nbsp;drag mouse to look&nbsp;&nbsp;·&nbsp;&nbsp;<b>Shift</b> run&nbsp;&nbsp;·&nbsp;&nbsp;<b>V</b> overview&nbsp;&nbsp;·&nbsp;&nbsp;click minimap to jump
+</div>
+<div class="hud" id="hudBtns">
+  <button class="hbtn on" id="btnWalk">Walk</button>
+  <button class="hbtn" id="btnOver">Overview</button>
+  <button class="hbtn" id="btnSpawn">Reset position</button>
+</div>
+<div id="minimap"><div id="mmInner"></div><span id="mmLabel">Svitch Plant</span><div id="mmPlayer"></div><div id="mmBike"></div></div>
+<div id="dpad">
+  <button class="dbtn" data-k="a">◀</button>
+  <button class="dbtn" data-k="w">▲</button>
+  <button class="dbtn" data-k="s">▼</button>
+  <button class="dbtn" data-k="d">▶</button>
+</div>
+
+<script>
+'use strict';
+/* Svitch plant — EMPTY SHELL per plot plan.
+   Hood spans volleyball-court end (north) → Proposed Paint Shop (south): grid rows 1–23.
+   x: 0 (west wall) → 45 (east wall). z: 0 (north wall) → 132 (south wall). 12 m to eaves. */
+const S = 60;
+const BW = 45, BL = 132, H = 12;
+const P = 900;
+
+const world = document.getElementById('world');
+const scene = document.getElementById('scene');
+const viewEl = document.getElementById('stageView');
+
+/* ---------------------------------------------------------- primitives */
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+function hexRGB(hex){ const n = parseInt(hex.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
+function shade(hex, f){
+  const [r,g,b] = hexRGB(hex);
+  const c = v => Math.round(clamp(v*f,0,255));
+  return `rgb(${c(r)},${c(g)},${c(b)})`;
+}
+function faceDiv(fw, fh, tf, bg, r){
+  const f = document.createElement('div');
+  f.className = 'face';
+  f.style.cssText = `left:${-fw/2}px;top:${-fh/2}px;width:${fw}px;height:${fh}px;transform:${tf};background:${bg};`
+    + (r ? `border-radius:${r}px;` : '');
+  return f;
+}
+function boxDiv(b, parent){
+  const el = document.createElement('div');
+  el.className = 'box';
+  const w = b.w*S, h = b.h*S, d = b.d*S;
+  el.style.transform = `translate3d(${b.cx*S}px,${-(b.y+b.h/2)*S}px,${(b.cz||0)*S}px)`
+    + (b.ry ? ` rotateY(${b.ry}deg)` : '') + (b.rz ? ` rotateZ(${b.rz}deg)` : '');
+  const F = b.f || {};
+  el.appendChild(faceDiv(w, h, `translateZ(${d/2}px)`,                F.front || shade(b.c,.92), b.r));
+  el.appendChild(faceDiv(w, h, `rotateY(180deg) translateZ(${d/2}px)`, F.back  || shade(b.c,.62), b.r));
+  el.appendChild(faceDiv(d, h, `rotateY(90deg) translateZ(${w/2}px)`,  F.right || shade(b.c,.82), b.r));
+  el.appendChild(faceDiv(d, h, `rotateY(-90deg) translateZ(${w/2}px)`, F.left  || shade(b.c,.70), b.r));
+  el.appendChild(faceDiv(w, d, `rotateX(90deg) translateZ(${h/2}px)`,  F.top   || shade(b.c,1.06), b.r));
+  (parent || world).appendChild(el);
+  return el;
+}
+function flat(cx, cz, w, d, ypx, bg, extra){
+  // centre the element on its own origin, put the world position in the transform —
+  // rotateX then happens about the correct point and the plane lies flat at (cx, cz)
+  const f = document.createElement('div');
+  f.className = 'flat3';
+  f.style.cssText = `left:${-w*S/2}px;top:${-d*S/2}px;width:${w*S}px;height:${d*S}px;`
+    + `transform:translate3d(${cx*S}px,${-ypx}px,${cz*S}px) rotateX(90deg);background:${bg};` + (extra||'');
+  world.appendChild(f);
+  return f;
+}
+
+/* text painted flat on the floor */
+function floorText(cx, cz, text, px, color, rot){
+  const el = document.createElement('div');
+  el.className = 'flat3';
+  const w = 700, h = px*1.6;
+  el.style.cssText = `left:${-w/2}px;top:${-h/2}px;width:${w}px;height:${h}px;`
+    + `transform:translate3d(${cx*S}px,-2.4px,${cz*S}px) rotateX(90deg)${rot ? ` rotateZ(${rot}deg)` : ''};`
+    + `display:flex;align-items:center;justify-content:center;text-align:center;`
+    + `font:700 ${px}px "Segoe UI",sans-serif;letter-spacing:.35em;color:${color};`;
+  el.textContent = text;
+  world.appendChild(el);
+  return el;
+}
+
+/* ---------------------------------------------------------- empty shell */
+function buildShell(){
+  // concrete floor — small grid tiles so the GPU only rasterises what's on screen
+  const conc = `repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, rgba(0,0,0,0) 2px ${S*5}px),`
+    + `repeating-linear-gradient(rgba(0,0,0,.05) 0 2px, rgba(0,0,0,0) 2px ${S*6}px), #a8abaf`;
+  const FX = 3, FZ = 8, ftw = BW/FX, ftd = BL/FZ;
+  for(let ix=0; ix<FX; ix++)
+    for(let iz=0; iz<FZ; iz++)
+      flat(ftw*(ix+0.5), ftd*(iz+0.5), ftw, ftd, 0, conc);
+
+  // silver roof deck, facing down, tiled the same way; backface hidden so the overview sees inside
+  for(let ix=0; ix<FX; ix++)
+    for(let iz=0; iz<FZ; iz++){
+      const ce = document.createElement('div');
+      ce.className = 'flat3';
+      ce.style.cssText = `left:${ftw*ix*S}px;top:${-ftd*S}px;width:${ftw*S}px;height:${ftd*S}px;transform-origin:0 100%;`
+        + `transform:translate3d(0px,${-H*S}px,${ftd*iz*S}px) rotateX(-90deg);`
+        + `background:repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 6px, rgba(0,0,0,0) 6px 26px), #a6abb2;`
+        + `backface-visibility:hidden;`;
+      world.appendChild(ce);
+    }
+
+  // silver corrugated walls (inward faces; backface-hidden = auto dollhouse in overview)
+  const wallC = '#9aa0a8';
+  const corr = `repeating-linear-gradient(90deg, ${shade(wallC,1.08)} 0 6px, ${wallC} 6px 26px), ${wallC}`;
+  // walls tiled along their own axis; each segment's transform carries its offset
+  const defs = [
+    {len:BW, tf:s => `translate3d(${s*S}px,${-H*S}px,0px)`},
+    {len:BL, tf:s => `translate3d(${BW*S}px,${-H*S}px,${s*S}px) rotateY(-90deg)`},
+    {len:BW, tf:s => `translate3d(${(BW-s)*S}px,${-H*S}px,${BL*S}px) rotateY(180deg)`},
+    {len:BL, tf:s => `translate3d(0px,${-H*S}px,${(BL-s)*S}px) rotateY(90deg)`},
+  ];
+  for(const wd of defs){
+    const n = Math.ceil(wd.len/34), seg = wd.len/n;
+    for(let i=0;i<n;i++){
+      const el = document.createElement('div');
+      el.className = 'face';
+      el.style.cssText = `left:0;top:0;width:${seg*S}px;height:${H*S}px;transform-origin:0 0;`
+        + `transform:${wd.tf(i*seg)};`
+        + `background:linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,0) 26%, rgba(0,0,0,.16) 92%), ${corr};`;
+      world.appendChild(el);
+    }
+  }
+
+  // steel column grid: two internal lines (x 15 / 30) every 12 m — first row starts AFTER
+  // the truck entrance (gate spans 6–14 m), so the drive-in path is clear of pillars
+  for(const x of [15, 30])
+    for(let z=18; z<BL; z+=12)
+      boxDiv({cx:x, cz:z, y:0, w:0.45, h:H-0.7, d:0.45, c:'#5d6670'});
+  // roof trusses across the width every 12 m
+  for(let z=6; z<BL; z+=12){
+    boxDiv({cx:BW/2, cz:z, y:H-1.0, w:BW-1, h:0.55, d:0.36, c:'#767e88',
+      f:{front:`repeating-linear-gradient(45deg, #868e98 0 4px, rgba(0,0,0,0) 4px 14px), #6d747c`,
+         back:`repeating-linear-gradient(-45deg, #868e98 0 4px, rgba(0,0,0,0) 4px 14px), #6d747c`}});
+  }
+  // factory entry door — north wall, in the gap between the volleyball and badminton courts
+  const DX = 22.5;
+  boxDiv({cx:DX-0.68, cz:0.10, y:0, w:0.16, h:2.28, d:0.2, c:'#5d646e'});
+  boxDiv({cx:DX+0.68, cz:0.10, y:0, w:0.16, h:2.28, d:0.2, c:'#5d646e'});
+  boxDiv({cx:DX, cz:0.10, y:2.12, w:1.52, h:0.16, d:0.2, c:'#5d646e'});
+  boxDiv({cx:DX, cz:0.11, y:0, w:1.2, h:2.1, d:0.09, c:'#6e7681', r:2,
+    f:{front:'linear-gradient(rgba(0,0,0,.14),rgba(0,0,0,.14)) 50% 24% / 70% 30% no-repeat,'
+      + 'linear-gradient(rgba(0,0,0,.14),rgba(0,0,0,.14)) 50% 74% / 70% 34% no-repeat, #6e7681'}});
+  boxDiv({cx:DX+0.42, cz:0.18, y:0.95, w:0.06, h:0.2, d:0.07, c:'#2e3238'});
+  const board = document.createElement('div');
+  board.className = 'face';
+  board.style.cssText = `left:${DX*S-1.3*S}px;top:${-(2.5+0.55)*S}px;width:${2.6*S}px;height:${0.55*S}px;`
+    + `transform:translate3d(0,0,${0.14*S}px);display:flex;align-items:center;justify-content:center;`
+    + `font:700 14px/1 "Segoe UI",sans-serif;letter-spacing:.22em;color:#eef1f4;white-space:nowrap;`
+    + `background:#232a32;border:2px solid #4a545f;border-bottom:5px solid #ff5c8a;`;
+  board.textContent = 'FACTORY ENTRY';
+  world.appendChild(board);
+
+  // big vehicle entrance — east wall beside the badminton area (hatched block on the plan)
+  // 8 m wide × 5 m tall, shutter rolled up: daylight visible through the opening
+  const GZ = 10;
+  boxDiv({cx:BW-0.16, cz:GZ, y:0, w:0.1, h:5, d:8, c:'#c5d4de',
+    f:{left:'linear-gradient(#e2ecf3 0 58%, #c2d1c6 58% 66%, #9fae9a 66% 100%)'}});
+  const hz = 'repeating-linear-gradient(45deg, #1c1c1c 0 10px, #d8a022 10px 20px)';
+  boxDiv({cx:BW-0.55, cz:GZ-4.25, y:0, w:0.5, h:5.4, d:0.5, c:'#d8a022', f:{left:hz, front:hz, back:hz}});
+  boxDiv({cx:BW-0.55, cz:GZ+4.25, y:0, w:0.5, h:5.4, d:0.5, c:'#d8a022', f:{left:hz, front:hz, back:hz}});
+  boxDiv({cx:BW-0.55, cz:GZ, y:5.4, w:0.5, h:0.5, d:9.0, c:'#d8a022', f:{left:hz}});
+  boxDiv({cx:BW-0.75, cz:GZ, y:5.05, w:0.8, h:0.8, d:8.6, c:'#8d939b', r:23});
+  flat(BW-2.4, GZ, 3.6, 8.6, 0.4,
+    'repeating-linear-gradient(45deg, rgba(216,160,34,.5) 0 14px, rgba(28,28,28,.35) 14px 28px)');
+  const vb = document.createElement('div');
+  vb.className = 'face';
+  vb.style.cssText = `left:${-3.6*S/2}px;top:${-0.55*S/2}px;width:${3.6*S}px;height:${0.55*S}px;`
+    + `transform:translate3d(${(BW-0.7)*S}px,${-6.6*S}px,${GZ*S}px) rotateY(-90deg);`
+    + `display:flex;align-items:center;justify-content:center;white-space:nowrap;`
+    + `font:700 14px/1 "Segoe UI",sans-serif;letter-spacing:.22em;color:#eef1f4;`
+    + `background:#232a32;border:2px solid #4a545f;border-bottom:5px solid #ff5c8a;`;
+  vb.textContent = 'VEHICLE GATE';
+  world.appendChild(vb);
+
+  // (no ground plane — a huge transformed layer starves the GPU and evicts the floor tiles)
+}
+
+/* ---------------------------------------------------------- assembly line (volleyball side, west band) */
+function partBike(cx, cz, ry){
+  // part-built CSR 762 — bare chassis on the conveyor (belt top = 0.55 m)
+  const g = document.createElement('div');
+  g.className = 'grp';
+  g.style.transform = `translate3d(${cx*S}px,${-0.55*S}px,${cz*S}px) rotateY(${ry||0}deg)`;
+  boxDiv({cx:0, cz:0.6, y:0, w:0.09, h:0.54, d:0.54, c:'#16181c', r:15}, g);
+  boxDiv({cx:0, cz:-0.6, y:0, w:0.11, h:0.54, d:0.54, c:'#16181c', r:15}, g);
+  boxDiv({cx:0, cz:0.03, y:0.3, w:0.22, h:0.36, d:0.9, c:'#9aa0a8', r:4}, g);
+  boxDiv({cx:0, cz:0.48, y:0.85, w:0.5, h:0.045, d:0.045, c:'#5d646e'}, g);
+  world.appendChild(g);
+}
+function workTable(cx, cz){
+  boxDiv({cx, cz, y:0.72, w:1.8, h:0.08, d:0.9, c:'#a9825d', r:3});
+  boxDiv({cx:cx-0.8, cz, y:0, w:0.08, h:0.72, d:0.8, c:'#6d747c'});
+  boxDiv({cx:cx+0.8, cz, y:0, w:0.08, h:0.72, d:0.8, c:'#6d747c'});
+  for(const dz of [-0.9, 0.9]) for(const dx of [-0.5, 0.5])
+    boxDiv({cx:cx+dx, cz:cz+dz, y:0, w:0.34, h:0.5, d:0.34, c:'#46536b', r:8});
+}
+const LINE_TABLES = [21, 29, 37, 45, 53, 61, 69, 77, 85];
+function buildAssembly(){
+  // chain conveyor in the wall→pillar band: 1st pillar row (18 m) → 7th pillar row (90 m)
+  boxDiv({cx:6.5, cz:54, y:0, w:1.5, h:0.55, d:72, c:'#3a4048',
+    f:{top:'repeating-linear-gradient(rgba(0,0,0,.4) 0 4px, rgba(0,0,0,0) 4px 20px), #565d66'}});
+  for(let z=19; z<=89; z+=3){
+    boxDiv({cx:5.6, cz:z, y:0, w:0.14, h:0.95, d:0.14, c:'#7c848d'});
+    boxDiv({cx:7.4, cz:z, y:0, w:0.14, h:0.95, d:0.14, c:'#7c848d'});
+  }
+  for(let z=22; z<=86; z+=8) partBike(6.5, z, 0);
+  for(const z of LINE_TABLES) workTable(10.5, z);
+  // RED BIN reject square beside the tables
+  flat(10.5, 41, 2.4, 2.2, 0.5, 'rgba(216,74,62,.15)', 'border:3px solid #c0392b;');
+}
+
+/* ---------------------------------------------------------- open-air courts, north of the hood */
+function net(cx, cz, len){
+  boxDiv({cx, cz:cz-len/2, y:0, w:0.07, h:1.6, d:0.07, c:'#5d646e'});
+  boxDiv({cx, cz:cz+len/2, y:0, w:0.07, h:1.6, d:0.07, c:'#5d646e'});
+  boxDiv({cx, cz, y:1.05, w:0.02, h:0.5, d:len, c:'#dfe3e8',
+    f:{left:'repeating-linear-gradient(rgba(0,0,0,.25) 0 2px, rgba(0,0,0,0) 2px 10px), rgba(235,239,244,.65)',
+       right:'repeating-linear-gradient(rgba(0,0,0,.25) 0 2px, rgba(0,0,0,0) 2px 10px), rgba(235,239,244,.65)'}});
+}
+function buildCourts(){
+  // courts are INSIDE the hood, first bay of the hall; entry-door walkway runs between them
+  // volleyball — sand-painted court, net across the middle
+  flat(14, 4, 13, 6, 0.4, '#b98d5f', 'box-shadow:inset 0 0 0 4px #f4efe6;');
+  flat(14, 4, 0.09, 6, 0.8, '#f4efe6');
+  net(14, 4, 6.8);
+  // badminton — green court
+  flat(30.5, 4, 13.2, 6.2, 0.4, '#3f7a55', 'box-shadow:inset 0 0 0 4px #f4efe6;');
+  flat(30.5, 4, 0.09, 6.2, 0.8, '#f4efe6');
+  flat(27.4, 4, 0.07, 6.2, 0.8, '#f4efe6');
+  flat(33.6, 4, 0.07, 6.2, 0.8, '#f4efe6');
+  net(30.5, 4, 6.8);
+}
+
+/* ---------------------------------------------------------- chassis reserve, east side (pillar 1 → 5) */
+const CHASSIS_X = [35.75, 37.95, 40.15, 42.35];   // 4 rows; 2 m walking gap kept at the east wall
+function buildChassisReserve(){
+  // pillar 1 (18 m) → pillar 5 (66 m)
+  for(const cx of CHASSIS_X)
+    boxDiv({cx, cz:42, y:0, w:1.3, h:1.15, d:48, c:'#9aa3ac',
+      f:{top:'repeating-linear-gradient(rgba(20,24,28,.55) 0 5px, rgba(0,0,0,0) 5px 16px), #aab3bc'}});
+}
+
+/* ---------------------------------------------------------- viewing / lounge deck (pillars 5–7, stock line → east wall) */
+const DECK = {x1:30, z1:66, x2:45, z2:90, h:4};
+/* metal zig-zag stair starting at the 6th pillar (78 m), facing people arriving from
+   the entrance: flight A (x 27.3–28.68) starts at z 78 and climbs south to a 2 m
+   landing, flight B (x 28.72–30) doubles back north up to the deck at 4 m */
+function deckSofa(cx, cz, ry, y0){
+  const g = document.createElement('div');
+  g.className = 'grp';
+  g.style.transform = `translate3d(${cx*S}px,${-(y0 === undefined ? DECK.h : y0)*S}px,${cz*S}px) rotateY(${ry}deg)`;
+  const A = b => boxDiv(b, g);
+  A({cx:0, cz:-0.36, y:0, w:2.2, h:0.8, d:0.24, c:'#5f7186', r:8});
+  A({cx:-1.0, cz:0.06, y:0, w:0.2, h:0.58, d:0.82, c:'#5f7186', r:6});
+  A({cx:1.0, cz:0.06, y:0, w:0.2, h:0.58, d:0.82, c:'#5f7186', r:6});
+  A({cx:0, cz:0.125, y:0, w:1.8, h:0.4, d:0.7, c:'#71859c', r:6});
+  A({cx:-0.45, cz:-0.14, y:0.4, w:0.85, h:0.35, d:0.18, c:'#7d92aa', r:7});
+  A({cx:0.45, cz:-0.14, y:0.4, w:0.85, h:0.35, d:0.18, c:'#7d92aa', r:7});
+  world.appendChild(g);
+}
+function buildDeck(){
+  // slab + supports
+  boxDiv({cx:37.5, cz:78, y:DECK.h-0.32, w:15, h:0.32, d:24, c:'#7d848d',
+    f:{top:'repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 2px, rgba(0,0,0,0) 2px 30px), #8b9199'}});
+  // proper steel pillars below the deck, same family as the hall columns
+  for(const px of [33.5, 37.5, 41.5, 44.4])
+    for(const pz of [69, 78, 87]){
+      boxDiv({cx:px, cz:pz, y:0, w:0.5, h:DECK.h-0.32, d:0.5, c:'#5d6670'});
+      boxDiv({cx:px, cz:pz, y:DECK.h-0.45, w:0.75, h:0.13, d:0.75, c:'#4a5158'});
+    }
+  // railings (west edge has a gap at the stair landing)
+  const rail = (cx, cz, w, d) => {
+    boxDiv({cx, cz, y:DECK.h+1.0, w:w||0.07, h:0.08, d:d||0.07, c:'#d8a022'});
+    boxDiv({cx, cz, y:DECK.h+0.52, w:w||0.06, h:0.06, d:d||0.06, c:'#b8891c'});
+  };
+  rail(37.5, 66.15, 15, 0.06);                    // north edge
+  rail(37.5, 89.85, 15, 0.06);                    // south edge
+  rail(30.15, 72.0, 0.06, 11.7);                  // west edge, north of the stair gap (z 78–80)
+  rail(30.15, 84.95, 0.06, 9.8);                  // west edge, south of the stair gap
+  for(let z=66.3; z<=89.8; z+=2.6){
+    if(z > 77.8 && z < 80.2) continue;   // stair landing gap
+    boxDiv({cx:30.15, cz:z, y:DECK.h, w:0.08, h:1.05, d:0.08, c:'#b8891c'});
+  }
+  for(let x=30.3; x<=44.8; x+=2.9){
+    boxDiv({cx:x, cz:66.15, y:DECK.h, w:0.08, h:1.05, d:0.08, c:'#b8891c'});
+    boxDiv({cx:x, cz:89.85, y:DECK.h, w:0.08, h:1.05, d:0.08, c:'#b8891c'});
+  }
+  // metal zig-zag stair: open steel treads on sloped stringers + mid landing
+  const tread = 'repeating-linear-gradient(90deg, rgba(0,0,0,.3) 0 3px, rgba(0,0,0,0) 3px 9px), #77808a';
+  for(let i=0; i<10; i++){
+    boxDiv({cx:28.0,  cz:78.5+i*0.42, y:0.14+i*0.2, w:1.25, h:0.06, d:0.4, c:'#6d747c', f:{top:tread}});   // flight A ↑ south
+    boxDiv({cx:29.35, cz:82.1-i*0.42, y:2.14+i*0.2, w:1.25, h:0.06, d:0.4, c:'#6d747c', f:{top:tread}});   // flight B ↑ north
+  }
+  // stringers (sloped side beams)
+  boxDiv({cx:27.42, cz:80.4, y:0.95, w:0.07, h:0.24, d:4.6, c:'#4a5158', rx:26});
+  boxDiv({cx:28.58, cz:80.4, y:0.95, w:0.07, h:0.24, d:4.6, c:'#4a5158', rx:26});
+  boxDiv({cx:28.78, cz:80.4, y:2.95, w:0.07, h:0.24, d:4.6, c:'#4a5158', rx:-26});
+  boxDiv({cx:29.92, cz:80.4, y:2.95, w:0.07, h:0.24, d:4.6, c:'#4a5158', rx:-26});
+  // mid landing at 2 m + supports
+  boxDiv({cx:28.65, cz:83.2, y:1.96, w:2.7, h:0.1, d:1.5, c:'#77808a', f:{top:tread}});
+  boxDiv({cx:27.6, cz:83.2, y:0, w:0.12, h:1.96, d:0.12, c:'#4a5158'});
+  boxDiv({cx:29.7, cz:83.2, y:0, w:0.12, h:1.96, d:0.12, c:'#4a5158'});
+  // yellow handrails: sloped on the flights, level around the landing
+  boxDiv({cx:27.36, cz:80.4, y:1.95, w:0.07, h:0.07, d:4.7, c:'#d8a022', rx:26});
+  boxDiv({cx:28.64, cz:80.4, y:1.95, w:0.07, h:0.07, d:4.7, c:'#d8a022', rx:26});
+  boxDiv({cx:28.76, cz:80.4, y:3.95, w:0.07, h:0.07, d:4.7, c:'#d8a022', rx:-26});
+  boxDiv({cx:29.96, cz:80.4, y:3.95, w:0.07, h:0.07, d:4.7, c:'#d8a022', rx:-26});
+  boxDiv({cx:28.65, cz:83.9, y:2.95, w:2.7, h:0.07, d:0.07, c:'#d8a022'});
+  boxDiv({cx:27.33, cz:83.2, y:2.95, w:0.07, h:0.07, d:1.5, c:'#d8a022'});
+  // lounge on top — sofas face west over the whole factory (south end is kept for the press)
+  deckSofa(32.8, 71.5, -90);
+  deckSofa(32.8, 79.5, -90);
+  deckSofa(38.7, 68.9, 0);
+  for(const [tx,tz] of [[31.3, 71.5], [31.3, 79.5], [38.7, 70.9]]){
+    boxDiv({cx:tx, cz:tz, y:DECK.h+0.3, w:1.15, h:0.06, d:0.7, c:'#a9825d', r:4});
+    boxDiv({cx:tx, cz:tz, y:DECK.h, w:0.1, h:0.3, d:0.1, c:'#6d747c'});
+  }
+  for(const [px,pz] of [[30.9, 67], [44.2, 67], [44.2, 89]]){
+    boxDiv({cx:px, cz:pz, y:DECK.h, w:0.32, h:0.34, d:0.32, c:'#b2724f', r:8});
+    boxDiv({cx:px, cz:pz, y:DECK.h+0.34, w:0.5, h:0.6, d:0.5, c:'#4f7a52', r:15});
+  }
+}
+/* walkable ground height: 0 = floor, zig-zag ramps on the stair flights, 4 on the deck */
+function groundY(x, z, cur){
+  if(x >= 27.3 && x < 28.68 && z >= 78.1 && z < 82.5)
+    return clamp((z - 78.1)/4.4*2, 0, 2);                       // flight A, up southwards
+  if(x >= 27.3 && x < 30 && z >= 82.5 && z < 84.0) return 2;    // mid landing
+  if(x >= 28.72 && x < 30 && z >= 77.9 && z < 82.5)
+    return clamp(2 + (82.5 - z)/4.5*2, 2, DECK.h);              // flight B, back up northwards
+  if(x >= DECK.x1 && z >= DECK.z1 && z <= DECK.z2) return cur > 2 ? DECK.h : 0;
+  return 0;
+}
+
+/* ---------------------------------------------------------- the CSR 762 (detailed model) */
+let plinthEl, plinthAng = 0, lapBike;
+function makeBike(parent, body, dark){
+  const rim = 'radial-gradient(circle, #52565c 0 12%, #191c20 13% 60%, #34383e 61% 68%, #101215 69%)';
+  const B = b => boxDiv(b, parent);
+  B({cx:0, cz:0.72,  y:0, w:0.10, h:0.62, d:0.62, c:'#131519', r:19, f:{left:rim, right:rim}});
+  B({cx:0, cz:-0.72, y:0, w:0.13, h:0.62, d:0.62, c:'#131519', r:19, f:{left:rim, right:rim}});
+  B({cx:0.09,  cz:-0.42, y:0.26, w:0.04, h:0.09, d:0.62, c:'#1a1d21'});
+  B({cx:-0.09, cz:-0.42, y:0.26, w:0.04, h:0.09, d:0.62, c:'#1a1d21'});
+  B({cx:0, cz:-0.72, y:0.22, w:0.18, h:0.2, d:0.2, c:'#22262b', r:12});
+  B({cx:0, cz:0.16, y:0.40, w:0.30, h:0.52, d:0.85, c:body, r:5});
+  B({cx:0, cz:0.14, y:0.16, w:0.24, h:0.26, d:0.62, c:dark, r:4});
+  B({cx:0, cz:0.52, y:0.14, w:0.20, h:0.34, d:0.22, c:'#17191c', r:3,
+     f:{front:'repeating-linear-gradient(rgba(255,255,255,.09) 0 2px, rgba(0,0,0,0) 2px 6px), #14161a'}});
+  B({cx:0, cz:-0.44, y:0.68, w:0.28, h:0.07, d:0.60, c:'#17191c', r:4});
+  B({cx:0, cz:-0.84, y:0.72, w:0.24, h:0.10, d:0.38, c:body, r:4, rx:-9,
+     f:{back:'radial-gradient(circle, #ff3b4d 0 40%, #8e1420 41%)'}});
+  B({cx:0, cz:-0.80, y:0.84, w:0.30, h:0.035, d:0.26, c:'#c6cbd1'});
+  B({cx:0, cz:0.58, y:0.90, w:0.07, h:0.24, d:0.07, c:'#22252a'});
+  B({cx:0, cz:0.58, y:1.12, w:0.62, h:0.045, d:0.045, c:'#1a1d21'});
+  B({cx:0.32,  cz:0.58, y:1.18, w:0.10, h:0.05, d:0.07, c:'#111317'});
+  B({cx:-0.32, cz:0.58, y:1.18, w:0.10, h:0.05, d:0.07, c:'#111317'});
+  B({cx:0, cz:0.63, y:0.72, w:0.19, h:0.24, d:0.14, c:'#1c1f24', r:5,
+     f:{front:'radial-gradient(circle at 50% 45%, #f2f6ff 0 24%, rgba(0,0,0,0) 30%), #14161a'}});
+  B({cx:0.07,  cz:0.70, y:0.14, w:0.045, h:0.68, d:0.045, c:'#b6bbc2'});
+  B({cx:-0.07, cz:0.70, y:0.14, w:0.045, h:0.68, d:0.045, c:'#b6bbc2'});
+  B({cx:0, cz:0.74, y:0.60, w:0.17, h:0.07, d:0.50, c:body, r:5});
+  for(const s of [1, -1]){
+    const b = document.createElement('div');
+    b.className = 'face';
+    b.style.cssText = `left:-16px;top:-9px;width:32px;height:18px;`
+      + `transform:translate3d(${s*0.153*S}px,${-0.74*S}px,${0.30*S}px) rotateY(${s*90}deg);`
+      + `display:flex;align-items:center;justify-content:center;`
+      + `font:italic 700 12px Georgia,serif;letter-spacing:2px;color:#f2f3f5;text-shadow:0 0 4px rgba(0,0,0,.7);`;
+    b.textContent = '762';
+    parent.appendChild(b);
+  }
+}
+
+/* demo lap around the seated audience: west aisle → past the stage → east aisle → front */
+const LAP = [[13, 102], [13, 119.6], [32, 119.6], [32, 102], [13, 102]];
+let lapLens = [], lapTotal = 0, lapS = 0;
+function lapPos(s){
+  s = ((s % lapTotal) + lapTotal) % lapTotal;
+  for(let i=0; i<lapLens.length; i++){
+    if(s <= lapLens[i]){
+      const [x1,z1] = LAP[i], [x2,z2] = LAP[i+1];
+      const t = s/lapLens[i];
+      return [x1+(x2-x1)*t, z1+(z2-z1)*t, Math.atan2(-(x2-x1), z2-z1)*180/Math.PI];
+    }
+    s -= lapLens[i];
+  }
+  return [LAP[0][0], LAP[0][1], 0];
+}
+function buildBikeLap(){
+  for(let i=0; i<LAP.length-1; i++)
+    lapLens.push(Math.hypot(LAP[i+1][0]-LAP[i][0], LAP[i+1][1]-LAP[i][1])), lapTotal += lapLens[i];
+  // painted demo-lap lane around the seating
+  const lane = 'rgba(46,50,56,.35)';
+  const edge = 'border:2px solid rgba(216,160,34,.55);';
+  flat(13, 110.8, 2.4, 20, 1.2, lane, edge);
+  flat(32, 110.8, 2.4, 20, 1.2, lane, edge);
+  flat(22.5, 119.6, 21.4, 2.4, 1.2, lane, edge);
+  flat(22.5, 102, 21.4, 2.4, 1.2, lane, edge);
+  for(const [bx,bz] of [[11.6, 100.4], [33.4, 100.4], [11.6, 121.2], [33.4, 121.2]])
+    boxDiv({cx:bx, cz:bz, y:0, w:0.22, h:0.85, d:0.22, c:'#d8a022',
+      f:{front:'repeating-linear-gradient(-45deg,#1c1c1c 0 7px,#d8a022 7px 14px)', back:'repeating-linear-gradient(-45deg,#1c1c1c 0 7px,#d8a022 7px 14px)'}});
+  // the red CSR 762 doing the lap
+  lapBike = document.createElement('div');
+  lapBike.className = 'grp';
+  makeBike(lapBike, '#8e222e', '#5e1620');
+  const sh = document.createElement('div');
+  sh.className = 'flat3';
+  sh.style.cssText = `left:${-1.0*S}px;top:${-0.55*S}px;width:${2*S}px;height:${1.1*S}px;`
+    + `transform:translate3d(0,-1.2px,0) rotateX(90deg);`
+    + `background:radial-gradient(ellipse, rgba(0,0,0,.4), rgba(0,0,0,0) 70%);`;
+  lapBike.appendChild(sh);
+  world.appendChild(lapBike);
+}
+
+/* ---------------------------------------------------------- launch event: stage, seating, food, bar, press */
+function eventChair(cx, cz, ry, col){
+  const g = document.createElement('div');
+  g.className = 'grp';
+  g.style.transform = `translate3d(${cx*S}px,0,${cz*S}px) rotateY(${ry||0}deg)`;
+  boxDiv({cx:0, cz:0, y:0, w:0.09, h:0.44, d:0.09, c:'#4a5158'}, g);
+  boxDiv({cx:0, cz:0.02, y:0.44, w:0.46, h:0.06, d:0.46, c:col, r:4}, g);
+  boxDiv({cx:0, cz:-0.21, y:0.5, w:0.46, h:0.48, d:0.06, c:col, r:4}, g);
+  world.appendChild(g);
+}
+function eventSign(cx, cz, y, w, h, text, flip, css){
+  const el = document.createElement('div');
+  el.className = 'face';
+  el.style.cssText = `left:${-w*S/2}px;top:${-h*S/2}px;width:${w*S}px;height:${h*S}px;`
+    + `transform:translate3d(${cx*S}px,${-y*S}px,${cz*S}px)${flip ? ' rotateY(180deg)' : ''};`
+    + `display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;`
+    + (css || `font:700 15px/1 "Segoe UI",sans-serif;letter-spacing:.2em;color:#eef1f4;`
+    + `background:#232a32;border:2px solid #4a545f;border-bottom:5px solid #ff5c8a;`);
+  el.textContent = text;
+  world.appendChild(el);
+}
+function buildEvent(){
+  // ---- LED stage at the south end, centred between the pillar lines, backstage behind
+  boxDiv({cx:22.5, cz:123.3, y:0, w:14, h:0.6, d:4.2, c:'#2a2e34',
+    f:{top:'linear-gradient(rgba(255,255,255,.08),rgba(0,0,0,.1)), #33383f'}});
+  boxDiv({cx:16.3, cz:124.6, y:0.6, w:0.4, h:6.4, d:0.4, c:'#33383f'});
+  boxDiv({cx:28.7, cz:124.6, y:0.6, w:0.4, h:6.4, d:0.4, c:'#33383f'});
+  boxDiv({cx:22.5, cz:124.6, y:6.9, w:13.4, h:0.4, d:0.4, c:'#33383f'});
+  const scr = document.createElement('div');
+  scr.className = 'face led';
+  scr.style.cssText = `left:${-6*S}px;top:${-2.5*S}px;width:${12*S}px;height:${5*S}px;`
+    + `transform:translate3d(${22.5*S}px,${-3.7*S}px,${124.4*S}px) rotateY(180deg);`
+    + `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;`
+    + `border:7px solid #0c0e12;box-shadow:0 0 60px rgba(255,60,150,.35);`;
+  scr.innerHTML = `<div style="font:italic 800 58px/1 Georgia,serif;color:#fff;text-shadow:0 0 24px rgba(255,255,255,.7)">SVITCH</div>`
+    + `<div style="font:600 20px/1 'Segoe UI',sans-serif;letter-spacing:.4em;color:#ffffffdd">CSR 762 · GRAND LAUNCH · 15 AUGUST</div>`;
+  world.appendChild(scr);
+  // backstage: fully hidden — full-width black backdrop behind the LED plus tall side
+  // curtains running to the south wall; crew slips in through gaps at the wall corners
+  const curtain = 'repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 8px, rgba(0,0,0,.12) 8px 22px), #17191c';
+  boxDiv({cx:22.5, cz:125.4, y:0, w:13.8, h:6.5, d:0.22, c:'#17191c', f:{back:curtain, front:curtain}});
+  boxDiv({cx:15.75, cz:128.3, y:0, w:0.22, h:6, d:5.8, c:'#17191c', f:{left:curtain, right:curtain}});
+  boxDiv({cx:29.25, cz:128.3, y:0, w:0.22, h:6, d:5.8, c:'#17191c', f:{left:curtain, right:curtain}});
+  floorText(22.5, 128.8, 'BACKSTAGE', 15, '#70767e');
+  boxDiv({cx:19, cz:129.5, y:0.72, w:2, h:0.08, d:0.9, c:'#a9825d', r:3});
+  boxDiv({cx:18.2, cz:129.5, y:0, w:0.09, h:0.72, d:0.8, c:'#6d747c'});
+  boxDiv({cx:19.8, cz:129.5, y:0, w:0.09, h:0.72, d:0.8, c:'#6d747c'});
+  for(const [bx,bz] of [[26, 129.6], [27.4, 129.4], [26.7, 130.4]])
+    boxDiv({cx:bx, cz:bz, y:0, w:1.1, h:1, d:1.1, c:'#8a6b44',
+      f:{front:'repeating-linear-gradient(rgba(0,0,0,.18) 0 3px, rgba(0,0,0,0) 3px 16px), #8a6b44'}});
+  // ---- audience: red carpet aisle, sofa rows in front, chair rows behind
+  flat(22.5, 112.5, 2.4, 17, 1.8, 'linear-gradient(#7e1f2d,#6a1a26)');
+  boxDiv({cx:22.5, cz:124.5, y:0.6, w:12.1, h:0.68, d:0.22, c:'#17191c'});   // skirt under the LED
+  for(const sz of [117.5, 114.8])
+    for(const sx of [17.3, 20.0, 25.0, 27.7]) deckSofa(sx, sz, 0, 0);
+  const chairCols = ['#c9cdd3', '#3f6b54'];
+  for(let r=0; r<4; r++){
+    const cz = 112 - r*1.8;
+    for(let i=0; i<5; i++){
+      eventChair(16.1+i*1.2, cz, 0, chairCols[r%2]);
+      eventChair(24.1+i*1.2, cz, 0, chairCols[r%2]);
+    }
+  }
+  // ---- lunch / food space below the sitting deck
+  flat(37.5, 78, 14, 22, 0.35, 'rgba(255,190,90,.08)');
+  for(const fz of [70.5, 77.5, 84.5]){
+    boxDiv({cx:43.5, cz:fz, y:0, w:1.1, h:0.95, d:3.4, c:'#b8b3a6',
+      f:{left:'linear-gradient(rgba(255,255,255,.5) 0 12%, rgba(0,0,0,0) 12%), #f0ece2', top:'#f4f1e8'}});
+    boxDiv({cx:43.5, cz:fz, y:0.95, w:0.9, h:0.12, d:1.1, c:'#c96a2e', r:4});
+  }
+  for(const [tx,tz] of [[34.5, 72.5], [39.5, 72.5], [34.5, 83.5], [39.5, 83.5]]){
+    boxDiv({cx:tx, cz:tz, y:0, w:0.09, h:1.05, d:0.09, c:'#5d646e'});
+    boxDiv({cx:tx, cz:tz, y:1.05, w:0.85, h:0.06, d:0.85, c:'#f0ece2', r:26});
+  }
+  eventSign(37.5, 66.3, 3.1, 4.2, 0.55, 'LUNCH · FOOD SPACE', true);
+  // ---- Svitch Nutraceuticals mocktail stall — against the east wall, between the two red doors
+  boxDiv({cx:44.55, cz:94.8, y:0, w:0.15, h:2.5, d:3.8, c:'#274d3d',
+    f:{left:'linear-gradient(rgba(255,255,255,.1), rgba(0,0,0,.12)), #2c5847'}});
+  boxDiv({cx:43.5, cz:94.8, y:0, w:1.0, h:1.05, d:3.2, c:'#3a745e',
+    f:{left:'linear-gradient(rgba(255,255,255,.16),rgba(0,0,0,.1)), #3a745e', top:'#e8f0ea'}});
+  const bottleCols = ['#c0392b', '#d8a022', '#3f6b54', '#54718a', '#8a4a8f'];
+  for(let i=0; i<5; i++)
+    boxDiv({cx:43.8, cz:93.7+i*0.55, y:1.05, w:0.14, h:0.4, d:0.14, c:bottleCols[i], r:4});
+  const nb = document.createElement('div');
+  nb.className = 'face';
+  nb.style.cssText = `left:${-2.3*S}px;top:${-0.275*S}px;width:${4.6*S}px;height:${0.55*S}px;`
+    + `transform:translate3d(${44.4*S}px,${-2.85*S}px,${94.8*S}px) rotateY(-90deg);`
+    + `display:flex;align-items:center;justify-content:center;white-space:nowrap;`
+    + `font:700 13px/1 "Segoe UI",sans-serif;letter-spacing:.16em;color:#eafbef;`
+    + `background:#274d3d;border:2px solid #3a745e;border-bottom:5px solid #7fe0a0;`;
+  nb.textContent = 'SVITCH NUTRACEUTICALS · MOCKTAILS';
+  world.appendChild(nb);
+  // ---- media corner (SE corner beside the stage): red floor + Svitch-branded walls
+  flat(40.4, 126.8, 8.3, 8.8, 1.6, 'linear-gradient(#8a2230,#701b28)');
+  floorText(40.4, 123.6, 'MEDIA', 14, '#e8c9ce');
+  const brandRows = Array(6).fill('SVITCH&nbsp;&nbsp;·&nbsp;&nbsp;CSR 762&nbsp;&nbsp;·&nbsp;&nbsp;SVITCH&nbsp;&nbsp;·&nbsp;&nbsp;CSR 762').join('<br>');
+  const mediaWall = (cssPos, w, h) => {
+    const el = document.createElement('div');
+    el.className = 'face';
+    el.style.cssText = `left:${-w*S/2}px;top:${-h*S/2}px;width:${w*S}px;height:${h*S}px;`
+      + cssPos
+      + `display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;`
+      + `font:700 19px/2.1 "Segoe UI",sans-serif;letter-spacing:.14em;color:#3a4048;`
+      + `background:#f4f2ec;border:5px solid #c9ccd2;`;
+    el.innerHTML = `<div>${brandRows}</div>`;
+    world.appendChild(el);
+  };
+  mediaWall(`transform:translate3d(${44.82*S}px,${-1.85*S}px,${126.8*S}px) rotateY(-90deg);`, 8.6, 3.3);
+  mediaWall(`transform:translate3d(${40.4*S}px,${-1.85*S}px,${131.75*S}px) rotateY(180deg);`, 8.2, 3.3);
+  for(const cxx of [39.5, 41.5]){
+    boxDiv({cx:cxx, cz:124.9, y:0, w:0.08, h:1.35, d:0.08, c:'#22262b'});
+    boxDiv({cx:cxx, cz:125, y:1.35, w:0.34, h:0.24, d:0.5, c:'#16181c', r:4});
+  }
+  for(let i=0; i<4; i++)
+    boxDiv({cx:38.6+i*1.95, cz:122.3, y:0, w:0.09, h:1.0, d:0.09, c:'#b6bbc2', r:3});
+  for(let i=0; i<3; i++)
+    boxDiv({cx:39.6+i*1.95, cz:122.3, y:0.82, w:1.85, h:0.05, d:0.05, c:'#a3372c'});
+  // ---- press / media space on the deck, at the far (south) end facing the stage
+  for(const px of [33.5, 37.5, 41.5]){
+    boxDiv({cx:px, cz:88.6, y:DECK.h+0.35, w:2.2, h:0.06, d:0.7, c:'#33383f', r:3});
+    boxDiv({cx:px-0.8, cz:88.6, y:DECK.h, w:0.08, h:0.35, d:0.6, c:'#4a5158'});
+    boxDiv({cx:px+0.8, cz:88.6, y:DECK.h, w:0.08, h:0.35, d:0.6, c:'#4a5158'});
+    eventChair(px-0.55, 87.7, 180, '#2e3238');
+    eventChair(px+0.55, 87.7, 180, '#2e3238');
+  }
+  for(const cxx of [32, 35.5, 39, 42.5]){
+    boxDiv({cx:cxx, cz:89.3, y:DECK.h, w:0.08, h:1.35, d:0.08, c:'#22262b'});
+    boxDiv({cx:cxx, cz:89.35, y:DECK.h+1.35, w:0.34, h:0.24, d:0.5, c:'#16181c', r:4,
+      f:{front:'radial-gradient(circle, #3d454f 0 30%, rgba(0,0,0,0) 32%), #16181c'}});
+  }
+  eventSign(37.5, 90.1, DECK.h+2.2, 3.4, 0.5, 'PRESS · MEDIA', true);
+  // ---- launch-show extras: reveal bike on a rotating plinth, speakers, stage lights
+  plinthEl = document.createElement('div');
+  plinthEl.className = 'grp';
+  plinthEl.dataset.base = `translate3d(${22.5*S}px,${-0.6*S}px,${122.4*S}px)`;
+  plinthEl.style.transform = plinthEl.dataset.base;
+  boxDiv({cx:0, cz:0, y:0, w:2.6, h:0.25, d:2.6, c:'#23262c', r:78,
+    f:{top:'radial-gradient(circle, #3b4047 0 55%, #2b2f35 56%)'}}, plinthEl);
+  const revealBike = document.createElement('div');
+  revealBike.className = 'grp';
+  revealBike.style.transform = `translate3d(0,${-0.25*S}px,0)`;
+  makeBike(revealBike, '#75797f', '#54585e');
+  plinthEl.appendChild(revealBike);
+  world.appendChild(plinthEl);
+  flat(22.5, 119.5, 16, 5.5, 0.9, 'radial-gradient(ellipse, rgba(255,80,150,.12), rgba(0,0,0,0) 70%)');
+  for(const sx of [15.1, 29.9])
+    for(let s=0; s<2; s++)
+      boxDiv({cx:sx, cz:121.9, y:s*1.45, w:1.15, h:1.4, d:1.0, c:'#191c20', r:4,
+        f:{back:'radial-gradient(circle at 50% 34%, #2e343c 0 17%, rgba(0,0,0,0) 18%), radial-gradient(circle at 50% 72%, #2e343c 0 24%, rgba(0,0,0,0) 25%), #14171b'}});
+  for(const lx of [18, 21, 24, 27])
+    boxDiv({cx:lx, cz:124.6, y:6.35, w:0.32, h:0.38, d:0.32, c:'#191c20', r:5});
+}
+
+/* ---------------------------------------------------------- red doors on the long walls (every 30 ft) */
+function buildSideDoors(){
+  const STEP = 9.144;                       // 30 feet
+  const leaf = 'linear-gradient(rgba(255,255,255,.35),rgba(255,255,255,.35)) 50% 47% / 68% 4% no-repeat,'
+    + 'linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.15)) 50% 20% / 74% 26% no-repeat, #b4483a';
+  for(let z=8; z<BL-2; z+=STEP){
+    // west wall — door faces east into the hall
+    boxDiv({cx:0.10, cz:z, y:0, w:0.12, h:2.25, d:1.28, c:'#3a3f45'});
+    boxDiv({cx:0.16, cz:z, y:0, w:0.12, h:2.1, d:1.05, c:'#b4483a', f:{right:leaf}});
+    // east wall — skip the vehicle-gate span and the media-corner branded wall
+    if((z > 4 && z < 16) || (z > 121.5 && z < 131.8)) continue;
+    boxDiv({cx:BW-0.10, cz:z, y:0, w:0.12, h:2.25, d:1.28, c:'#3a3f45'});
+    boxDiv({cx:BW-0.16, cz:z, y:0, w:0.12, h:2.1, d:1.05, c:'#b4483a', f:{left:leaf}});
+  }
+}
+
+/* ---------------------------------------------------------- collision */
+/* entries: [x1, z1, x2, z2, lvl] — lvl 1 = deck level only, lvl 2 = floor level only */
+const SOLIDS = [
+  [5.6, 17.8, 7.4, 90.2],                                  // conveyor
+  ...LINE_TABLES.map(z => [9.5, z-1.3, 11.5, z+1.3]),      // worktables + stools
+  [13.92, 1.0, 14.08, 7.0],                                // volleyball net
+  [30.42, 0.9, 30.58, 7.1],                                // badminton net
+  ...CHASSIS_X.map(cx => [cx-0.65, 18, cx+0.65, 66]),      // chassis reserve rows
+  ...[33.5, 37.5, 41.5, 44.4].flatMap(px => [69, 78, 87].map(pz => [px-0.3, pz-0.3, px+0.3, pz+0.3, 2])), // deck pillars
+  [31.9, 70.4, 33.4, 72.6, 1], [31.9, 78.4, 33.4, 80.6, 1], [37.6, 68.2, 39.8, 69.6, 1],  // deck sofas
+  [15.4, 121.1, 29.6, 125.6],                              // stage platform + LED + backdrop
+  [15.5, 125.3, 15.95, 131.3], [29.05, 125.3, 29.5, 131.3],// backstage side curtains
+  [14.4, 121.2, 15.8, 122.6], [29.2, 121.2, 30.6, 122.6],  // speaker stacks
+  [16.1, 116.9, 21.3, 118.1], [23.7, 116.9, 28.9, 118.1],  // sofa row 1
+  [16.1, 114.2, 21.3, 115.4], [23.7, 114.2, 28.9, 115.4],  // sofa row 2
+  ...[112, 110.2, 108.4, 106.6].flatMap(cz => [[15.7, cz-0.35, 21.1, cz+0.35], [23.7, cz-0.35, 29.1, cz+0.35]]), // chairs
+  [42.8, 68.6, 44.2, 86.4, 2],                             // buffet counters (under deck)
+  [43.0, 93.1, 44.7, 96.5],                                // mocktail stall (east wall, between the red doors)
+  [38.3, 122.1, 44.6, 122.5],                              // media-corner rope line (entry gap on the west)
+  [32.5, 87.7, 42.7, 89.5, 1],                             // press row on the deck
+];
+function collide(nx, nz, gy){
+  const r = 0.45;
+  nx = clamp(nx, 1.1, BW-1.1); nz = clamp(nz, 1.1, BL-1.1);
+  for(const [x1,z1,x2,z2,lvl] of SOLIDS){
+    if(lvl === 1 && gy < 2) continue;
+    if(lvl === 2 && gy > 2) continue;
+    if(nx > x1-r && nx < x2+r && nz > z1-r && nz < z2+r){
+      const dl = nx-(x1-r), dr = (x2+r)-nx, dt = nz-(z1-r), db = (z2+r)-nz;
+      const m = Math.min(dl, dr, dt, db);
+      if(m === dl) nx = x1-r; else if(m === dr) nx = x2+r;
+      else if(m === dt) nz = z1-r; else nz = z2+r;
+    }
+  }
+  return [nx, nz];
+}
+
+/* ---------------------------------------------------------- minimap */
+const MM = 2.3;
+function buildMinimap(){
+  const mm = document.getElementById('mmInner');
+  const e = document.createElement('div');
+  e.className = 'mm';
+  e.style.cssText = `left:0;top:0;width:${BW*MM}px;height:${BL*MM}px;`
+    + `background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.35);border-radius:2px;`;
+  mm.appendChild(e);
+  const zone = (x, z, w, d, bg) => {
+    const e2 = document.createElement('div');
+    e2.className = 'mm';
+    e2.style.cssText = `left:${x*MM}px;top:${z*MM}px;width:${w*MM}px;height:${d*MM}px;background:${bg};border-radius:1px;`;
+    mm.appendChild(e2);
+  };
+  zone(4.8, 18, 6.7, 72, 'rgba(160,170,185,.5)');     // assembly line
+  zone(7.5, 1, 13, 6, 'rgba(185,141,95,.55)');        // volleyball
+  zone(23.9, 0.9, 13.2, 6.2, 'rgba(63,122,85,.6)');   // badminton
+  zone(35.1, 18, 7.9, 48, 'rgba(110,160,210,.5)');    // chassis reserve
+  zone(30, 66, 15, 24, 'rgba(150,120,190,.45)');      // viewing deck + press (up) / food (below)
+  zone(27.3, 78, 2.7, 6.2, 'rgba(216,218,222,.5)');   // zig-zag stairs (start at 6th pillar)
+  zone(15.5, 121, 14, 4.4, 'rgba(255,92,138,.6)');    // LED stage
+  zone(15.8, 105.5, 13.4, 13.5, 'rgba(255,170,80,.35)'); // seating
+  zone(36.3, 122.4, 8.3, 8.8, 'rgba(180,60,60,.55)'); // media corner
+  document.getElementById('minimap').addEventListener('click', ev => {
+    const rect = mm.getBoundingClientRect();
+    const x = (ev.clientX - rect.left)/MM, z = (ev.clientY - rect.top)/MM;
+    if(x < -2 || x > BW+2 || z < -2 || z > BL+2) return;
+    cam.x = clamp(x, 1.2, BW-1.2); cam.z = clamp(z, 1.2, BL-1.2);
+    camGy = groundY(cam.x, cam.z, 0); camYs = camGy;
+    setMode('walk');
+  });
+}
+
+/* ---------------------------------------------------------- camera & modes */
+const cam = {x:22.5, z:2.6, yaw:180, pitch:2};   // spawn just inside the entry door
+let camGy = 0, camYs = 0;                        // logical + smoothed ground height (deck walking)
+let mode = 'walk';
+const over = {yaw:18, pitch:-42, zoom:0.06};
+const keys = {};
+
+function applyCam(){
+  if(mode === 'walk'){
+    scene.style.transform =
+      `translateZ(${P}px) rotateX(${-cam.pitch}deg) rotateY(${-cam.yaw}deg)`
+      + ` translate3d(${-cam.x*S}px,${(1.62+camYs)*S}px,${-cam.z*S}px)`;
+  }else{
+    scene.style.transform =
+      `scale3d(${over.zoom},${over.zoom},${over.zoom}) rotateX(${over.pitch}deg) rotateY(${over.yaw}deg)`
+      + ` translate3d(${-BW*S/2}px,${H*S*0.45}px,${-BL*S/2}px)`;
+  }
+}
+function setMode(m){
+  mode = m;
+  document.getElementById('btnWalk').classList.toggle('on', m === 'walk');
+  document.getElementById('btnOver').classList.toggle('on', m === 'over');
+  if(m === 'over'){
+    const pw = viewEl.clientWidth, ph = viewEl.clientHeight;
+    over.zoom = clamp(Math.min(pw*0.8/(BW*S*2.4), ph*0.85/(BL*S*0.8)), 0.02, 0.5);
+  }
+  applyCam();
+}
+document.getElementById('btnWalk').addEventListener('click', () => setMode('walk'));
+document.getElementById('btnOver').addEventListener('click', () => setMode('over'));
+document.getElementById('btnSpawn').addEventListener('click', () => {
+  cam.x = 22.5; cam.z = 2.6; cam.yaw = 180; cam.pitch = 2; camGy = 0; camYs = 0; setMode('walk');
+});
+
+let look = null;
+viewEl.addEventListener('pointerdown', e => {
+  look = {x:e.clientX, y:e.clientY};
+  viewEl.setPointerCapture(e.pointerId);
+});
+viewEl.addEventListener('pointermove', e => {
+  if(!look) return;
+  const dx = e.clientX - look.x, dy = e.clientY - look.y;
+  look = {x:e.clientX, y:e.clientY};
+  if(mode === 'walk'){
+    cam.yaw -= dx*0.24;
+    cam.pitch = clamp(cam.pitch - dy*0.16, -38, 38);
+  }else{
+    over.yaw += dx*0.4;
+    over.pitch = clamp(over.pitch + dy*0.3, -88, -6);
+  }
+  applyCam();
+});
+viewEl.addEventListener('pointerup', () => look = null);
+viewEl.addEventListener('pointercancel', () => look = null);
+viewEl.addEventListener('wheel', e => {
+  e.preventDefault();
+  if(mode === 'over'){
+    over.zoom = clamp(over.zoom*Math.exp(-e.deltaY*0.0011), 0.012, 0.6);
+    applyCam();
+  }
+}, {passive:false});
+
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if(k === 'v'){ setMode(mode === 'walk' ? 'over' : 'walk'); return; }
+  keys[k] = true;
+  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
+});
+document.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+document.querySelectorAll('#dpad .dbtn').forEach(b => {
+  const k = b.dataset.k;
+  b.addEventListener('pointerdown', e => { e.preventDefault(); keys[k] = true; });
+  b.addEventListener('pointerup', () => keys[k] = false);
+  b.addEventListener('pointercancel', () => keys[k] = false);
+});
+
+/* ---------------------------------------------------------- walk loop (empty hall: walls only) */
+let last = performance.now();
+const mmPlayer = document.getElementById('mmPlayer');
+const mmBike = document.getElementById('mmBike');
+const mmOff = {x:12, y:14};
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function tick(now){
+  const dt = Math.min(0.05, (now-last)/1000);
+  last = now;
+  if(mode === 'walk'){
+    const run = keys['shift'] ? 9 : 4.4;
+    const rad = cam.yaw*Math.PI/180;
+    const fx = -Math.sin(rad), fz = -Math.cos(rad);
+    const rx = Math.cos(rad),  rz = -Math.sin(rad);
+    let mx = 0, mz = 0;
+    if(keys['w'] || keys['arrowup'])    { mx += fx; mz += fz; }
+    if(keys['s'] || keys['arrowdown'])  { mx -= fx; mz -= fz; }
+    if(keys['a'] || keys['arrowleft'])  { mx -= rx; mz -= rz; }
+    if(keys['d'] || keys['arrowright']) { mx += rx; mz += rz; }
+    const len = Math.hypot(mx, mz);
+    if(len > 0.01){
+      const [nx, nz] = collide(cam.x + mx/len*run*dt, cam.z + mz/len*run*dt, camGy);
+      const gy = groundY(nx, nz, camGy);
+      // stairs change level smoothly; a sudden jump (deck edge) blocks the move
+      if(Math.abs(gy - camGy) < 1.2){
+        cam.x = nx; cam.z = nz; camGy = gy;
+      }
+    }
+    camYs += (camGy - camYs)*Math.min(1, dt*12);
+    applyCam();
+  }
+  if(!reduceMotion){
+    lapS += 6.5*dt;
+    const [bx, bz, rot] = lapPos(lapS);
+    lapBike.style.transform = `translate3d(${bx*S}px,0,${bz*S}px) rotateY(${-rot}deg)`;
+    mmBike.style.left = (mmOff.x + bx*MM)+'px';
+    mmBike.style.top = (mmOff.y + bz*MM)+'px';
+    plinthAng += 14*dt;
+    plinthEl.style.transform = plinthEl.dataset.base + ` rotateY(${plinthAng}deg)`;
+  }
+  mmPlayer.style.left = (mmOff.x + cam.x*MM)+'px';
+  mmPlayer.style.top = (mmOff.y + cam.z*MM)+'px';
+  mmPlayer.style.transform = `rotate(${-cam.yaw}deg)`;
+  requestAnimationFrame(tick);
+}
+
+/* ---------------------------------------------------------- boot */
+buildShell();
+buildAssembly();
+buildCourts();
+buildChassisReserve();
+buildDeck();
+buildEvent();
+buildBikeLap();
+buildSideDoors();
+buildMinimap();
+applyCam();
+requestAnimationFrame(tick);
+window.addEventListener('resize', () => { if(mode === 'over') setMode('over'); });
+</script>
