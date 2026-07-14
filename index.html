@@ -373,6 +373,19 @@ function buildDeck(){
   // slab + supports
   boxDiv({cx:37.5, cz:78, y:DECK.h-0.32, w:15, h:0.32, d:24, c:'#7d848d',
     f:{top:'repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 2px, rgba(0,0,0,0) 2px 30px), #8b9199'}});
+  // underside of the slab â€” the food space's ceiling, visible from below
+  const und = document.createElement('div');
+  und.className = 'flat3';
+  und.style.cssText = `left:${-15*S/2}px;top:${-24*S/2}px;width:${15*S}px;height:${24*S}px;`
+    + `transform:translate3d(${37.5*S}px,${-(DECK.h-0.33)*S}px,${78*S}px) rotateX(-90deg);`
+    + `background:repeating-linear-gradient(90deg, rgba(0,0,0,.07) 0 3px, rgba(0,0,0,0) 3px 26px), #82898f;`
+    + `backface-visibility:hidden;`;
+  world.appendChild(und);
+  // lights mounted on that ceiling so the food space feels lit
+  for(const [lx,lz] of [[35, 72], [40, 78], [35, 84]]){
+    boxDiv({cx:lx, cz:lz, y:DECK.h-0.55, w:0.7, h:0.2, d:0.7, c:'#3c424a', r:14, f:{top:'#454b54'}});
+    flat(lx, lz, 6, 5, 0.28, 'radial-gradient(ellipse, rgba(255,224,160,.13), rgba(0,0,0,0) 70%)');
+  }
   // no pillars under the deck â€” the food space below stays completely open
   // (deck reads as wall-hung / edge-supported)
   // railings (west edge has a gap at the stair landing)
