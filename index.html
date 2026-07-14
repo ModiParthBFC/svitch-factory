@@ -1,4 +1,9 @@
-<title>Svitch Factory — Empty Shell</title>
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Svitch Factory â€” Empty Shell</title>
 <style>
   *{margin:0;box-sizing:border-box}
   html,body{height:100%}
@@ -96,11 +101,11 @@
 <div id="vignette"></div>
 
 <div class="hud" id="hudTitle">
-  <h1><b>SVITCH</b> · Factory Shell</h1>
-  <p>132 × 45 × 12 m — empty hood</p>
+  <h1><b>SVITCH</b> Â· Factory Shell</h1>
+  <p>132 Ã— 45 Ã— 12 m â€” empty hood</p>
 </div>
 <div class="hud" id="hudKeys">
-  <b>W</b><b>A</b><b>S</b><b>D</b> walk&nbsp;&nbsp;·&nbsp;&nbsp;drag mouse to look&nbsp;&nbsp;·&nbsp;&nbsp;<b>Shift</b> run&nbsp;&nbsp;·&nbsp;&nbsp;<b>V</b> overview&nbsp;&nbsp;·&nbsp;&nbsp;click minimap to jump
+  <b>W</b><b>A</b><b>S</b><b>D</b> walk&nbsp;&nbsp;Â·&nbsp;&nbsp;drag mouse to look&nbsp;&nbsp;Â·&nbsp;&nbsp;<b>Shift</b> run&nbsp;&nbsp;Â·&nbsp;&nbsp;<b>V</b> overview&nbsp;&nbsp;Â·&nbsp;&nbsp;click minimap to jump
 </div>
 <div class="hud" id="hudBtns">
   <button class="hbtn on" id="btnWalk">Walk</button>
@@ -109,17 +114,17 @@
 </div>
 <div id="minimap"><div id="mmInner"></div><span id="mmLabel">Svitch Plant</span><div id="mmPlayer"></div><div id="mmBike"></div></div>
 <div id="dpad">
-  <button class="dbtn" data-k="a">◀</button>
-  <button class="dbtn" data-k="w">▲</button>
-  <button class="dbtn" data-k="s">▼</button>
-  <button class="dbtn" data-k="d">▶</button>
+  <button class="dbtn" data-k="a">â—€</button>
+  <button class="dbtn" data-k="w">â–²</button>
+  <button class="dbtn" data-k="s">â–¼</button>
+  <button class="dbtn" data-k="d">â–¶</button>
 </div>
 
 <script>
 'use strict';
-/* Svitch plant — EMPTY SHELL per plot plan.
-   Hood spans volleyball-court end (north) → Proposed Paint Shop (south): grid rows 1–23.
-   x: 0 (west wall) → 45 (east wall). z: 0 (north wall) → 132 (south wall). 12 m to eaves. */
+/* Svitch plant â€” EMPTY SHELL per plot plan.
+   Hood spans volleyball-court end (north) â†’ Proposed Paint Shop (south): grid rows 1â€“23.
+   x: 0 (west wall) â†’ 45 (east wall). z: 0 (north wall) â†’ 132 (south wall). 12 m to eaves. */
 const S = 60;
 const BW = 45, BL = 132, H = 12;
 const P = 900;
@@ -159,7 +164,7 @@ function boxDiv(b, parent){
   return el;
 }
 function flat(cx, cz, w, d, ypx, bg, extra){
-  // centre the element on its own origin, put the world position in the transform —
+  // centre the element on its own origin, put the world position in the transform â€”
   // rotateX then happens about the correct point and the plane lies flat at (cx, cz)
   const f = document.createElement('div');
   f.className = 'flat3';
@@ -185,7 +190,7 @@ function floorText(cx, cz, text, px, color, rot){
 
 /* ---------------------------------------------------------- empty shell */
 function buildShell(){
-  // concrete floor — small grid tiles so the GPU only rasterises what's on screen
+  // concrete floor â€” small grid tiles so the GPU only rasterises what's on screen
   const conc = `repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, rgba(0,0,0,0) 2px ${S*5}px),`
     + `repeating-linear-gradient(rgba(0,0,0,.05) 0 2px, rgba(0,0,0,0) 2px ${S*6}px), #a8abaf`;
   const FX = 3, FZ = 8, ftw = BW/FX, ftd = BL/FZ;
@@ -227,8 +232,8 @@ function buildShell(){
     }
   }
 
-  // steel column grid: two internal lines (x 15 / 30) every 12 m — first row starts AFTER
-  // the truck entrance (gate spans 6–14 m), so the drive-in path is clear of pillars
+  // steel column grid: two internal lines (x 15 / 30) every 12 m â€” first row starts AFTER
+  // the truck entrance (gate spans 6â€“14 m), so the drive-in path is clear of pillars
   for(const x of [15, 30])
     for(let z=18; z<BL; z+=12)
       boxDiv({cx:x, cz:z, y:0, w:0.45, h:H-0.7, d:0.45, c:'#5d6670'});
@@ -238,7 +243,7 @@ function buildShell(){
       f:{front:`repeating-linear-gradient(45deg, #868e98 0 4px, rgba(0,0,0,0) 4px 14px), #6d747c`,
          back:`repeating-linear-gradient(-45deg, #868e98 0 4px, rgba(0,0,0,0) 4px 14px), #6d747c`}});
   }
-  // factory entry door — north wall, in the gap between the volleyball and badminton courts
+  // factory entry door â€” north wall, in the gap between the volleyball and badminton courts
   const DX = 22.5;
   boxDiv({cx:DX-0.68, cz:0.10, y:0, w:0.16, h:2.28, d:0.2, c:'#5d646e'});
   boxDiv({cx:DX+0.68, cz:0.10, y:0, w:0.16, h:2.28, d:0.2, c:'#5d646e'});
@@ -256,8 +261,8 @@ function buildShell(){
   board.textContent = 'FACTORY ENTRY';
   world.appendChild(board);
 
-  // big vehicle entrance — east wall beside the badminton area (hatched block on the plan)
-  // 8 m wide × 5 m tall, shutter rolled up: daylight visible through the opening
+  // big vehicle entrance â€” east wall beside the badminton area (hatched block on the plan)
+  // 8 m wide Ã— 5 m tall, shutter rolled up: daylight visible through the opening
   const GZ = 10;
   boxDiv({cx:BW-0.16, cz:GZ, y:0, w:0.1, h:5, d:8, c:'#c5d4de',
     f:{left:'linear-gradient(#e2ecf3 0 58%, #c2d1c6 58% 66%, #9fae9a 66% 100%)'}});
@@ -278,12 +283,12 @@ function buildShell(){
   vb.textContent = 'VEHICLE GATE';
   world.appendChild(vb);
 
-  // (no ground plane — a huge transformed layer starves the GPU and evicts the floor tiles)
+  // (no ground plane â€” a huge transformed layer starves the GPU and evicts the floor tiles)
 }
 
 /* ---------------------------------------------------------- assembly line (volleyball side, west band) */
 function partBike(cx, cz, ry){
-  // part-built CSR 762 — bare chassis on the conveyor (belt top = 0.55 m)
+  // part-built CSR 762 â€” bare chassis on the conveyor (belt top = 0.55 m)
   const g = document.createElement('div');
   g.className = 'grp';
   g.style.transform = `translate3d(${cx*S}px,${-0.55*S}px,${cz*S}px) rotateY(${ry||0}deg)`;
@@ -302,7 +307,7 @@ function workTable(cx, cz){
 }
 const LINE_TABLES = [21, 29, 37, 45, 53, 61, 69, 77, 85];
 function buildAssembly(){
-  // chain conveyor in the wall→pillar band: 1st pillar row (18 m) → 7th pillar row (90 m)
+  // chain conveyor in the wallâ†’pillar band: 1st pillar row (18 m) â†’ 7th pillar row (90 m)
   boxDiv({cx:6.5, cz:54, y:0, w:1.5, h:0.55, d:72, c:'#3a4048',
     f:{top:'repeating-linear-gradient(rgba(0,0,0,.4) 0 4px, rgba(0,0,0,0) 4px 20px), #565d66'}});
   for(let z=19; z<=89; z+=3){
@@ -325,11 +330,11 @@ function net(cx, cz, len){
 }
 function buildCourts(){
   // courts are INSIDE the hood, first bay of the hall; entry-door walkway runs between them
-  // volleyball — sand-painted court, net across the middle
+  // volleyball â€” sand-painted court, net across the middle
   flat(14, 4, 13, 6, 0.4, '#b98d5f', 'box-shadow:inset 0 0 0 4px #f4efe6;');
   flat(14, 4, 0.09, 6, 0.8, '#f4efe6');
   net(14, 4, 6.8);
-  // badminton — green court
+  // badminton â€” green court
   flat(30.5, 4, 13.2, 6.2, 0.4, '#3f7a55', 'box-shadow:inset 0 0 0 4px #f4efe6;');
   flat(30.5, 4, 0.09, 6.2, 0.8, '#f4efe6');
   flat(27.4, 4, 0.07, 6.2, 0.8, '#f4efe6');
@@ -337,20 +342,20 @@ function buildCourts(){
   net(30.5, 4, 6.8);
 }
 
-/* ---------------------------------------------------------- chassis reserve, east side (pillar 1 → 5) */
+/* ---------------------------------------------------------- chassis reserve, east side (pillar 1 â†’ 5) */
 const CHASSIS_X = [35.75, 37.95, 40.15, 42.35];   // 4 rows; 2 m walking gap kept at the east wall
 function buildChassisReserve(){
-  // pillar 1 (18 m) → pillar 5 (66 m)
+  // pillar 1 (18 m) â†’ pillar 5 (66 m)
   for(const cx of CHASSIS_X)
     boxDiv({cx, cz:42, y:0, w:1.3, h:1.15, d:48, c:'#9aa3ac',
       f:{top:'repeating-linear-gradient(rgba(20,24,28,.55) 0 5px, rgba(0,0,0,0) 5px 16px), #aab3bc'}});
 }
 
-/* ---------------------------------------------------------- viewing / lounge deck (pillars 5–7, stock line → east wall) */
+/* ---------------------------------------------------------- viewing / lounge deck (pillars 5â€“7, stock line â†’ east wall) */
 const DECK = {x1:30, z1:66, x2:45, z2:90, h:4};
 /* metal zig-zag stair starting at the 6th pillar (78 m), facing people arriving from
-   the entrance: flight A (x 27.3–28.68) starts at z 78 and climbs south to a 2 m
-   landing, flight B (x 28.72–30) doubles back north up to the deck at 4 m */
+   the entrance: flight A (x 27.3â€“28.68) starts at z 78 and climbs south to a 2 m
+   landing, flight B (x 28.72â€“30) doubles back north up to the deck at 4 m */
 function deckSofa(cx, cz, ry, y0){
   const g = document.createElement('div');
   g.className = 'grp';
@@ -381,7 +386,7 @@ function buildDeck(){
   };
   rail(37.5, 66.15, 15, 0.06);                    // north edge
   rail(37.5, 89.85, 15, 0.06);                    // south edge
-  rail(30.15, 72.0, 0.06, 11.7);                  // west edge, north of the stair gap (z 78–80)
+  rail(30.15, 72.0, 0.06, 11.7);                  // west edge, north of the stair gap (z 78â€“80)
   rail(30.15, 84.95, 0.06, 9.8);                  // west edge, south of the stair gap
   for(let z=66.3; z<=89.8; z+=2.6){
     if(z > 77.8 && z < 80.2) continue;   // stair landing gap
@@ -394,8 +399,8 @@ function buildDeck(){
   // metal zig-zag stair: open steel treads on sloped stringers + mid landing
   const tread = 'repeating-linear-gradient(90deg, rgba(0,0,0,.3) 0 3px, rgba(0,0,0,0) 3px 9px), #77808a';
   for(let i=0; i<10; i++){
-    boxDiv({cx:28.0,  cz:78.5+i*0.42, y:0.14+i*0.2, w:1.25, h:0.06, d:0.4, c:'#6d747c', f:{top:tread}});   // flight A ↑ south
-    boxDiv({cx:29.35, cz:82.1-i*0.42, y:2.14+i*0.2, w:1.25, h:0.06, d:0.4, c:'#6d747c', f:{top:tread}});   // flight B ↑ north
+    boxDiv({cx:28.0,  cz:78.5+i*0.42, y:0.14+i*0.2, w:1.25, h:0.06, d:0.4, c:'#6d747c', f:{top:tread}});   // flight A â†‘ south
+    boxDiv({cx:29.35, cz:82.1-i*0.42, y:2.14+i*0.2, w:1.25, h:0.06, d:0.4, c:'#6d747c', f:{top:tread}});   // flight B â†‘ north
   }
   // stringers (sloped side beams)
   boxDiv({cx:27.42, cz:80.4, y:0.95, w:0.07, h:0.24, d:4.6, c:'#4a5158', rx:26});
@@ -413,7 +418,7 @@ function buildDeck(){
   boxDiv({cx:29.96, cz:80.4, y:3.95, w:0.07, h:0.07, d:4.7, c:'#d8a022', rx:-26});
   boxDiv({cx:28.65, cz:83.9, y:2.95, w:2.7, h:0.07, d:0.07, c:'#d8a022'});
   boxDiv({cx:27.33, cz:83.2, y:2.95, w:0.07, h:0.07, d:1.5, c:'#d8a022'});
-  // lounge on top — sofas face west over the whole factory (south end is kept for the press)
+  // lounge on top â€” sofas face west over the whole factory (south end is kept for the press)
   deckSofa(32.8, 71.5, -90);
   deckSofa(32.8, 79.5, -90);
   deckSofa(38.7, 68.9, 0);
@@ -476,7 +481,7 @@ function makeBike(parent, body, dark){
   }
 }
 
-/* demo lap around the seated audience: west aisle → past the stage → east aisle → front */
+/* demo lap around the seated audience: west aisle â†’ past the stage â†’ east aisle â†’ front */
 const LAP = [[13, 102], [13, 119.6], [32, 119.6], [32, 102], [13, 102]];
 let lapLens = [], lapTotal = 0, lapS = 0;
 function lapPos(s){
@@ -552,9 +557,9 @@ function buildEvent(){
     + `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;`
     + `border:7px solid #0c0e12;box-shadow:0 0 60px rgba(255,60,150,.35);`;
   scr.innerHTML = `<div style="font:italic 800 58px/1 Georgia,serif;color:#fff;text-shadow:0 0 24px rgba(255,255,255,.7)">SVITCH</div>`
-    + `<div style="font:600 20px/1 'Segoe UI',sans-serif;letter-spacing:.4em;color:#ffffffdd">CSR 762 · GRAND LAUNCH · 15 AUGUST</div>`;
+    + `<div style="font:600 20px/1 'Segoe UI',sans-serif;letter-spacing:.4em;color:#ffffffdd">CSR 762 Â· GRAND LAUNCH Â· 15 AUGUST</div>`;
   world.appendChild(scr);
-  // backstage: fully hidden — full-width black backdrop behind the LED plus tall side
+  // backstage: fully hidden â€” full-width black backdrop behind the LED plus tall side
   // curtains running to the south wall; crew slips in through gaps at the wall corners
   const curtain = 'repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 8px, rgba(0,0,0,.12) 8px 22px), #17191c';
   boxDiv({cx:22.5, cz:125.4, y:0, w:13.8, h:6.5, d:0.22, c:'#17191c', f:{back:curtain, front:curtain}});
@@ -591,8 +596,8 @@ function buildEvent(){
     boxDiv({cx:tx, cz:tz, y:0, w:0.09, h:1.05, d:0.09, c:'#5d646e'});
     boxDiv({cx:tx, cz:tz, y:1.05, w:0.85, h:0.06, d:0.85, c:'#f0ece2', r:26});
   }
-  eventSign(37.5, 66.3, 3.1, 4.2, 0.55, 'LUNCH · FOOD SPACE', true);
-  // ---- Svitch Nutraceuticals mocktail stall — against the east wall, between the two red doors
+  eventSign(37.5, 66.3, 3.1, 4.2, 0.55, 'LUNCH Â· FOOD SPACE', true);
+  // ---- Svitch Nutraceuticals mocktail stall â€” against the east wall, between the two red doors
   boxDiv({cx:44.55, cz:94.8, y:0, w:0.15, h:2.5, d:3.8, c:'#274d3d',
     f:{left:'linear-gradient(rgba(255,255,255,.1), rgba(0,0,0,.12)), #2c5847'}});
   boxDiv({cx:43.5, cz:94.8, y:0, w:1.0, h:1.05, d:3.2, c:'#3a745e',
@@ -607,12 +612,12 @@ function buildEvent(){
     + `display:flex;align-items:center;justify-content:center;white-space:nowrap;`
     + `font:700 13px/1 "Segoe UI",sans-serif;letter-spacing:.16em;color:#eafbef;`
     + `background:#274d3d;border:2px solid #3a745e;border-bottom:5px solid #7fe0a0;`;
-  nb.textContent = 'SVITCH NUTRACEUTICALS · MOCKTAILS';
+  nb.textContent = 'SVITCH NUTRACEUTICALS Â· MOCKTAILS';
   world.appendChild(nb);
   // ---- media corner (SE corner beside the stage): red floor + Svitch-branded walls
   flat(40.4, 126.8, 8.3, 8.8, 1.6, 'linear-gradient(#8a2230,#701b28)');
   floorText(40.4, 123.6, 'MEDIA', 14, '#e8c9ce');
-  const brandRows = Array(6).fill('SVITCH&nbsp;&nbsp;·&nbsp;&nbsp;CSR 762&nbsp;&nbsp;·&nbsp;&nbsp;SVITCH&nbsp;&nbsp;·&nbsp;&nbsp;CSR 762').join('<br>');
+  const brandRows = Array(6).fill('SVITCH&nbsp;&nbsp;Â·&nbsp;&nbsp;CSR 762&nbsp;&nbsp;Â·&nbsp;&nbsp;SVITCH&nbsp;&nbsp;Â·&nbsp;&nbsp;CSR 762').join('<br>');
   const mediaWall = (cssPos, w, h) => {
     const el = document.createElement('div');
     el.className = 'face';
@@ -647,7 +652,7 @@ function buildEvent(){
     boxDiv({cx:cxx, cz:89.35, y:DECK.h+1.35, w:0.34, h:0.24, d:0.5, c:'#16181c', r:4,
       f:{front:'radial-gradient(circle, #3d454f 0 30%, rgba(0,0,0,0) 32%), #16181c'}});
   }
-  eventSign(37.5, 90.1, DECK.h+2.2, 3.4, 0.5, 'PRESS · MEDIA', true);
+  eventSign(37.5, 90.1, DECK.h+2.2, 3.4, 0.5, 'PRESS Â· MEDIA', true);
   // ---- launch-show extras: reveal bike on a rotating plinth, speakers, stage lights
   plinthEl = document.createElement('div');
   plinthEl.className = 'grp';
@@ -676,10 +681,10 @@ function buildSideDoors(){
   const leaf = 'linear-gradient(rgba(255,255,255,.35),rgba(255,255,255,.35)) 50% 47% / 68% 4% no-repeat,'
     + 'linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.15)) 50% 20% / 74% 26% no-repeat, #b4483a';
   for(let z=8; z<BL-2; z+=STEP){
-    // west wall — door faces east into the hall
+    // west wall â€” door faces east into the hall
     boxDiv({cx:0.10, cz:z, y:0, w:0.12, h:2.25, d:1.28, c:'#3a3f45'});
     boxDiv({cx:0.16, cz:z, y:0, w:0.12, h:2.1, d:1.05, c:'#b4483a', f:{right:leaf}});
-    // east wall — skip the vehicle-gate span and the media-corner branded wall
+    // east wall â€” skip the vehicle-gate span and the media-corner branded wall
     if((z > 4 && z < 16) || (z > 121.5 && z < 131.8)) continue;
     boxDiv({cx:BW-0.10, cz:z, y:0, w:0.12, h:2.25, d:1.28, c:'#3a3f45'});
     boxDiv({cx:BW-0.16, cz:z, y:0, w:0.12, h:2.1, d:1.05, c:'#b4483a', f:{left:leaf}});
@@ -687,7 +692,7 @@ function buildSideDoors(){
 }
 
 /* ---------------------------------------------------------- collision */
-/* entries: [x1, z1, x2, z2, lvl] — lvl 1 = deck level only, lvl 2 = floor level only */
+/* entries: [x1, z1, x2, z2, lvl] â€” lvl 1 = deck level only, lvl 2 = floor level only */
 const SOLIDS = [
   [5.6, 17.8, 7.4, 90.2],                                  // conveyor
   ...LINE_TABLES.map(z => [9.5, z-1.3, 11.5, z+1.3]),      // worktables + stools
