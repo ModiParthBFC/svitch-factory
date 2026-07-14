@@ -373,12 +373,8 @@ function buildDeck(){
   // slab + supports
   boxDiv({cx:37.5, cz:78, y:DECK.h-0.32, w:15, h:0.32, d:24, c:'#7d848d',
     f:{top:'repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 2px, rgba(0,0,0,0) 2px 30px), #8b9199'}});
-  // proper steel pillars below the deck, same family as the hall columns
-  for(const px of [33.5, 37.5, 41.5, 44.4])
-    for(const pz of [69, 78, 87]){
-      boxDiv({cx:px, cz:pz, y:0, w:0.5, h:DECK.h-0.32, d:0.5, c:'#5d6670'});
-      boxDiv({cx:px, cz:pz, y:DECK.h-0.45, w:0.75, h:0.13, d:0.75, c:'#4a5158'});
-    }
+  // no pillars under the deck â€” the food space below stays completely open
+  // (deck reads as wall-hung / edge-supported)
   // railings (west edge has a gap at the stair landing)
   const rail = (cx, cz, w, d) => {
     boxDiv({cx, cz, y:DECK.h+1.0, w:w||0.07, h:0.08, d:d||0.07, c:'#d8a022'});
@@ -699,7 +695,6 @@ const SOLIDS = [
   [13.92, 1.0, 14.08, 7.0],                                // volleyball net
   [30.42, 0.9, 30.58, 7.1],                                // badminton net
   ...CHASSIS_X.map(cx => [cx-0.65, 18, cx+0.65, 66]),      // chassis reserve rows
-  ...[33.5, 37.5, 41.5, 44.4].flatMap(px => [69, 78, 87].map(pz => [px-0.3, pz-0.3, px+0.3, pz+0.3, 2])), // deck pillars
   [31.9, 70.4, 33.4, 72.6, 1], [31.9, 78.4, 33.4, 80.6, 1], [37.6, 68.2, 39.8, 69.6, 1],  // deck sofas
   [15.4, 121.1, 29.6, 125.6],                              // stage platform + LED + backdrop
   [15.5, 125.3, 15.95, 131.3], [29.05, 125.3, 29.5, 131.3],// backstage side curtains
