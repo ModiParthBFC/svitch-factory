@@ -435,7 +435,7 @@ function buildDeck(){
     boxDiv({cx:tx, cz:tz, y:DECK.h+0.3, w:1.15, h:0.06, d:0.7, c:'#a9825d', r:4});
     boxDiv({cx:tx, cz:tz, y:DECK.h, w:0.1, h:0.3, d:0.1, c:'#6d747c'});
   }
-  for(const [px,pz] of [[30.9, 67], [44.2, 67], [44.2, 89]]){
+  for(const [px,pz] of [[30.9, 67], [44.2, 74], [44.2, 89]]){
     boxDiv({cx:px, cz:pz, y:DECK.h, w:0.32, h:0.34, d:0.32, c:'#b2724f', r:8});
     boxDiv({cx:px, cz:pz, y:DECK.h+0.34, w:0.5, h:0.6, d:0.5, c:'#4f7a52', r:15});
   }
@@ -555,7 +555,7 @@ function eventSign(cx, cz, y, w, h, text, flip, css){
 function buildEvent(){
   // ---- stage per drawing: 56' Ã— 8', front edge ON the last pillar row (z=126),
   //      30' Ã— 10' LED screen, V-shaped 8'-wide walking ramp projecting 20' out
-  boxDiv({cx:22.5, cz:115.22, y:0, w:17.07, h:0.6, d:2.44, c:'#2a2e34',
+  boxDiv({cx:22.5, cz:115.22, y:0, w:21.0, h:0.6, d:2.44, c:'#2a2e34',
     f:{top:'linear-gradient(rgba(255,255,255,.08),rgba(0,0,0,.1)), #33383f'}});
   const rampTop = 'linear-gradient(90deg, rgba(255,255,255,.35) 0 4%, rgba(0,0,0,0) 4% 96%, rgba(255,255,255,.35) 96%), #383d44';
   boxDiv({cx:22.5, cz:109.12, y:0, w:6.6, h:0.62, d:2.44, c:'#2a2e34',
@@ -576,11 +576,9 @@ function buildEvent(){
   scr.innerHTML = `<div style="font:italic 800 42px/1 Georgia,serif;color:#fff;text-shadow:0 0 20px rgba(255,255,255,.7)">SVITCH</div>`
     + `<div style="font:600 14px/1 'Segoe UI',sans-serif;letter-spacing:.34em;color:#ffffffdd">CSR 762 Â· GRAND LAUNCH Â· 15 AUGUST</div>`;
   world.appendChild(scr);
-  // backstage behind the 8' stage â€” backdrop + side curtains running to the south wall
+  // backstage behind the 8' stage â€” full-width backdrop hides it from the front (no side panels)
   const curtain = 'repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 8px, rgba(0,0,0,.12) 8px 22px), #17191c';
-  boxDiv({cx:22.5, cz:116.9, y:0, w:17.3, h:5.4, d:0.22, c:'#17191c', f:{back:curtain, front:curtain}});
-  boxDiv({cx:14.05, cz:124.2, y:0, w:0.22, h:5.2, d:14.6, c:'#17191c', f:{left:curtain, right:curtain}});
-  boxDiv({cx:30.95, cz:124.2, y:0, w:0.22, h:5.2, d:14.6, c:'#17191c', f:{left:curtain, right:curtain}});
+  boxDiv({cx:22.5, cz:116.9, y:0, w:21.2, h:5.4, d:0.22, c:'#17191c', f:{back:curtain, front:curtain}});
   floorText(22.5, 124.5, 'BACKSTAGE', 13, '#70767e');
   boxDiv({cx:18, cz:130.6, y:0.72, w:2, h:0.08, d:0.9, c:'#a9825d', r:3});
   boxDiv({cx:17.2, cz:130.6, y:0, w:0.09, h:0.72, d:0.8, c:'#6d747c'});
@@ -617,18 +615,18 @@ function buildEvent(){
     boxDiv({cx:tx, cz:tz, y:1.05, w:0.85, h:0.06, d:0.85, c:'#f0ece2', r:26});
   }
   eventSign(37.5, 66.3, 3.1, 4.2, 0.55, 'LUNCH Â· FOOD SPACE', true);
-  // ---- Svitch Nutraceuticals mocktail stall â€” against the east wall, between the two red doors
-  boxDiv({cx:44.55, cz:94.8, y:0, w:0.15, h:2.5, d:3.8, c:'#274d3d',
+  // ---- Svitch Nutraceuticals mocktail stall â€” ON the deck, north-east corner by the wall
+  boxDiv({cx:44.55, cz:69.5, y:DECK.h, w:0.15, h:2.5, d:3.8, c:'#274d3d',
     f:{left:'linear-gradient(rgba(255,255,255,.1), rgba(0,0,0,.12)), #2c5847'}});
-  boxDiv({cx:43.5, cz:94.8, y:0, w:1.0, h:1.05, d:3.2, c:'#3a745e',
+  boxDiv({cx:43.5, cz:69.5, y:DECK.h, w:1.0, h:1.05, d:3.2, c:'#3a745e',
     f:{left:'linear-gradient(rgba(255,255,255,.16),rgba(0,0,0,.1)), #3a745e', top:'#e8f0ea'}});
   const bottleCols = ['#c0392b', '#d8a022', '#3f6b54', '#54718a', '#8a4a8f'];
   for(let i=0; i<5; i++)
-    boxDiv({cx:43.8, cz:93.7+i*0.55, y:1.05, w:0.14, h:0.4, d:0.14, c:bottleCols[i], r:4});
+    boxDiv({cx:43.8, cz:68.4+i*0.55, y:DECK.h+1.05, w:0.14, h:0.4, d:0.14, c:bottleCols[i], r:4});
   const nb = document.createElement('div');
   nb.className = 'face';
   nb.style.cssText = `left:${-2.3*S}px;top:${-0.275*S}px;width:${4.6*S}px;height:${0.55*S}px;`
-    + `transform:translate3d(${44.4*S}px,${-2.85*S}px,${94.8*S}px) rotateY(-90deg);`
+    + `transform:translate3d(${44.4*S}px,${-(DECK.h+2.85)*S}px,${69.5*S}px) rotateY(-90deg);`
     + `display:flex;align-items:center;justify-content:center;white-space:nowrap;`
     + `font:700 13px/1 "Segoe UI",sans-serif;letter-spacing:.16em;color:#eafbef;`
     + `background:#274d3d;border:2px solid #3a745e;border-bottom:5px solid #7fe0a0;`;
@@ -687,7 +685,7 @@ function buildEvent(){
   plinthEl.appendChild(revealBike);
   world.appendChild(plinthEl);
   flat(22.5, 110.8, 15, 6, 0.9, 'radial-gradient(ellipse, rgba(255,80,150,.12), rgba(0,0,0,0) 70%)');
-  for(const sx of [12.9, 32.1])
+  for(const sx of [10.9, 34.1])
     for(let s=0; s<2; s++)
       boxDiv({cx:sx, cz:114.9, y:s*1.45, w:1.15, h:1.4, d:1.0, c:'#191c20', r:4,
         f:{back:'radial-gradient(circle at 50% 34%, #2e343c 0 17%, rgba(0,0,0,0) 18%), radial-gradient(circle at 50% 72%, #2e343c 0 24%, rgba(0,0,0,0) 25%), #14171b'}});
@@ -714,8 +712,8 @@ function fence(x1, z1, x2, z2){
   }
 }
 function buildFences(){
-  // purple line: below the vehicle gate, down the stock's inner side, across to the deck corner
-  fence(34.3, 16, 41, 16);          // opening 41 â†’ wall stays clear for the truck
+  // continuous enclosure around the stock: wall â†’ below the gate â†’ down the inner side â†’ deck corner
+  fence(34.3, 16, 44.9, 16);
   fence(34.3, 16, 34.3, 66);
   fence(30.2, 66, 34.3, 66);
   // yellow line: straight mid-hall fence beside the stock, pillar 1 â†’ past pillar 4
@@ -731,10 +729,12 @@ function buildSideDoors(){
     // west wall â€” door faces east into the hall
     boxDiv({cx:0.10, cz:z, y:0, w:0.12, h:2.25, d:1.28, c:'#3a3f45'});
     boxDiv({cx:0.16, cz:z, y:0, w:0.12, h:2.1, d:1.05, c:'#b4483a', f:{right:leaf}});
-    // east wall â€” skip the vehicle-gate span and the media-corner branded wall
+    // east (badminton) wall â€” rolling shutters instead of doors, bigger than a door;
+    // skip the vehicle-gate span and the media-corner branded wall
     if((z > 4 && z < 16) || (z > 121.5 && z < 131.8)) continue;
-    boxDiv({cx:BW-0.10, cz:z, y:0, w:0.12, h:2.25, d:1.28, c:'#3a3f45'});
-    boxDiv({cx:BW-0.16, cz:z, y:0, w:0.12, h:2.1, d:1.05, c:'#b4483a', f:{left:leaf}});
+    boxDiv({cx:BW-0.10, cz:z, y:0, w:0.12, h:3.7, d:3.4, c:'#6d747c'});
+    boxDiv({cx:BW-0.17, cz:z, y:0, w:0.12, h:3.5, d:3.0, c:'#8d939b',
+      f:{left:'repeating-linear-gradient(rgba(0,0,0,.22) 0 6px, rgba(0,0,0,0) 6px 22px), #979da5'}});
   }
 }
 
@@ -747,18 +747,17 @@ const SOLIDS = [
   [30.42, 0.9, 30.58, 7.1],                                // badminton net
   ...CHASSIS_X.map(cx => [cx-0.65, 18, cx+0.65, 66]),      // chassis reserve rows
   [31.9, 70.4, 33.4, 72.6, 1], [31.9, 78.4, 33.4, 80.6, 1], [37.6, 68.2, 39.8, 69.6, 1],  // deck sofas
-  [13.9, 113.9, 31.1, 117.0],                              // stage platform + LED + backdrop
+  [11.9, 113.9, 33.1, 117.0],                              // stage platform + LED + backdrop (widened)
   [19.6, 107.7, 25.4, 110.5],                              // V-ramp tip + plinth
   [14.8, 108.6, 21.4, 114.1], [23.6, 108.6, 30.2, 114.1],  // V-ramp arms
-  [13.9, 117.0, 14.3, 131.6], [30.7, 117.0, 31.1, 131.6],  // backstage side curtains
-  [12.3, 114.3, 13.5, 115.5], [31.5, 114.3, 32.7, 115.5],  // speaker stacks
+  [10.3, 114.3, 11.5, 115.5], [33.5, 114.3, 34.7, 115.5],  // speaker stacks
   [16.1, 103.2, 21.3, 104.4], [23.7, 103.2, 28.9, 104.4],  // sofa row 1
   [16.1, 101.0, 21.3, 102.2], [23.7, 101.0, 28.9, 102.2],  // sofa row 2
   ...Array.from({length:12}, (_,r) => 99.6 - r*1.3).flatMap(cz => [[14.7, cz-0.3, 21.8, cz+0.3], [23.3, cz-0.3, 30.4, cz+0.3]]),
   ...Array.from({length:6}, (_,r) => 84 - r*1.3).flatMap(cz => [[14.7, cz-0.3, 21.8, cz+0.3], [23.3, cz-0.3, 26.4, cz+0.3]]),
   [42.8, 68.6, 44.2, 86.4, 2],                             // buffet counters (under deck)
-  [43.0, 93.1, 44.7, 96.5],                                // mocktail stall (east wall, between the red doors)
-  [34.2, 15.9, 41.1, 16.1], [34.24, 16, 34.36, 66],        // 15 ft fence â€” purple line
+  [43.0, 67.6, 44.7, 71.4, 1],                             // mocktail stall (on the deck, NE corner)
+  [34.2, 15.9, 44.9, 16.1], [34.24, 16, 34.36, 66],        // 15 ft fence â€” continuous purple line
   [30.2, 65.9, 34.3, 66.1], [23.44, 18, 23.56, 58],        // fence connector + yellow line
   [38.3, 122.1, 44.6, 122.5],                              // media-corner rope line (entry gap on the west)
   [32.5, 87.7, 42.7, 89.5, 1],                             // press row on the deck
@@ -800,10 +799,10 @@ function buildMinimap(){
   zone(35.1, 18, 7.9, 48, 'rgba(110,160,210,.5)');    // chassis reserve
   zone(30, 66, 15, 24, 'rgba(150,120,190,.45)');      // viewing deck + press (up) / food (below)
   zone(27.3, 78, 2.7, 6.2, 'rgba(216,218,222,.5)');   // zig-zag stairs (start at 6th pillar)
-  zone(13.9, 107.7, 17.2, 9.3, 'rgba(255,92,138,.6)'); // stage + V walkway
+  zone(11.9, 107.7, 21.2, 9.3, 'rgba(255,92,138,.6)'); // stage + V walkway
   zone(14.7, 77, 15.7, 27.7, 'rgba(255,170,80,.35)');  // seating for 250
   zone(36.3, 122.4, 8.3, 8.8, 'rgba(180,60,60,.55)'); // media corner
-  zone(34.2, 16, 6.8, 0.25, 'rgba(220,224,228,.85)'); // fences (15 ft chain-link)
+  zone(34.2, 16, 10.7, 0.25, 'rgba(220,224,228,.85)'); // fences (15 ft chain-link)
   zone(34.24, 16, 0.15, 50, 'rgba(220,224,228,.85)');
   zone(30.2, 65.9, 4.1, 0.25, 'rgba(220,224,228,.85)');
   zone(23.44, 18, 0.15, 40, 'rgba(220,224,228,.85)');
