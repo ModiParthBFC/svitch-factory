@@ -491,7 +491,7 @@ function makeBike(parent, body, dark){
 }
 
 /* demo lap around the seated audience: west aisle â†’ past the stage â†’ east aisle â†’ front */
-const LAP = [[13, 102], [13, 119.6], [32, 119.6], [32, 102], [13, 102]];
+const LAP = [[13, 102], [13, 118.4], [32, 118.4], [32, 102], [13, 102]];
 let lapLens = [], lapTotal = 0, lapS = 0;
 function lapPos(s){
   s = ((s % lapTotal) + lapTotal) % lapTotal;
@@ -511,11 +511,11 @@ function buildBikeLap(){
   // painted demo-lap lane around the seating
   const lane = 'rgba(46,50,56,.35)';
   const edge = 'border:2px solid rgba(216,160,34,.55);';
-  flat(13, 110.8, 2.4, 20, 1.2, lane, edge);
-  flat(32, 110.8, 2.4, 20, 1.2, lane, edge);
-  flat(22.5, 119.6, 21.4, 2.4, 1.2, lane, edge);
+  flat(13, 110.2, 2.4, 18.8, 1.2, lane, edge);
+  flat(32, 110.2, 2.4, 18.8, 1.2, lane, edge);
+  flat(22.5, 118.4, 21.4, 2.4, 1.2, lane, edge);
   flat(22.5, 102, 21.4, 2.4, 1.2, lane, edge);
-  for(const [bx,bz] of [[11.6, 100.4], [33.4, 100.4], [11.6, 121.2], [33.4, 121.2]])
+  for(const [bx,bz] of [[11.6, 100.4], [33.4, 100.4], [11.6, 120.0], [33.4, 120.0]])
     boxDiv({cx:bx, cz:bz, y:0, w:0.22, h:0.85, d:0.22, c:'#d8a022',
       f:{front:'repeating-linear-gradient(-45deg,#1c1c1c 0 7px,#d8a022 7px 14px)', back:'repeating-linear-gradient(-45deg,#1c1c1c 0 7px,#d8a022 7px 14px)'}});
   // the red CSR 762 doing the lap
@@ -553,38 +553,44 @@ function eventSign(cx, cz, y, w, h, text, flip, css){
   world.appendChild(el);
 }
 function buildEvent(){
-  // ---- LED stage at the south end, centred between the pillar lines, backstage behind
-  boxDiv({cx:22.5, cz:123.3, y:0, w:14, h:0.6, d:4.2, c:'#2a2e34',
+  // ---- stage per drawing: 56' Ã— 8', front edge ON the last pillar row (z=126),
+  //      30' Ã— 10' LED screen, V-shaped 8'-wide walking ramp projecting 20' out
+  boxDiv({cx:22.5, cz:127.22, y:0, w:17.07, h:0.6, d:2.44, c:'#2a2e34',
     f:{top:'linear-gradient(rgba(255,255,255,.08),rgba(0,0,0,.1)), #33383f'}});
-  boxDiv({cx:16.3, cz:124.6, y:0.6, w:0.4, h:6.4, d:0.4, c:'#33383f'});
-  boxDiv({cx:28.7, cz:124.6, y:0.6, w:0.4, h:6.4, d:0.4, c:'#33383f'});
-  boxDiv({cx:22.5, cz:124.6, y:6.9, w:13.4, h:0.4, d:0.4, c:'#33383f'});
+  const rampTop = 'linear-gradient(90deg, rgba(255,255,255,.35) 0 4%, rgba(0,0,0,0) 4% 96%, rgba(255,255,255,.35) 96%), #383d44';
+  boxDiv({cx:22.5, cz:121.12, y:0, w:6.6, h:0.62, d:2.44, c:'#2a2e34',
+    f:{top:'linear-gradient(rgba(255,255,255,.12),rgba(0,0,0,.08)), #3a3f46'}});
+  boxDiv({cx:18.05, cz:123.55, y:0, w:2.44, h:0.6, d:7.5, c:'#2a2e34', ry:-44, f:{top:rampTop}});
+  boxDiv({cx:26.95, cz:123.55, y:0, w:2.44, h:0.6, d:7.5, c:'#2a2e34', ry:44, f:{top:rampTop}});
+  // LED screen 30' wide Ã— 10' tall
+  boxDiv({cx:17.4, cz:127.6, y:0.6, w:0.35, h:4.2, d:0.35, c:'#33383f'});
+  boxDiv({cx:27.6, cz:127.6, y:0.6, w:0.35, h:4.2, d:0.35, c:'#33383f'});
+  boxDiv({cx:22.5, cz:127.6, y:4.55, w:10.8, h:0.35, d:0.35, c:'#33383f'});
+  boxDiv({cx:22.5, cz:127.7, y:0.6, w:9.3, h:0.2, d:0.2, c:'#17191c'});
   const scr = document.createElement('div');
   scr.className = 'face led';
-  scr.style.cssText = `left:${-6*S}px;top:${-2.5*S}px;width:${12*S}px;height:${5*S}px;`
-    + `transform:translate3d(${22.5*S}px,${-3.7*S}px,${124.4*S}px) rotateY(180deg);`
-    + `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;`
-    + `border:7px solid #0c0e12;box-shadow:0 0 60px rgba(255,60,150,.35);`;
-  scr.innerHTML = `<div style="font:italic 800 58px/1 Georgia,serif;color:#fff;text-shadow:0 0 24px rgba(255,255,255,.7)">SVITCH</div>`
-    + `<div style="font:600 20px/1 'Segoe UI',sans-serif;letter-spacing:.4em;color:#ffffffdd">CSR 762 Â· GRAND LAUNCH Â· 15 AUGUST</div>`;
+  scr.style.cssText = `left:${-4.57*S}px;top:${-1.525*S}px;width:${9.14*S}px;height:${3.05*S}px;`
+    + `transform:translate3d(${22.5*S}px,${-2.3*S}px,${127.55*S}px) rotateY(180deg);`
+    + `display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;`
+    + `border:6px solid #0c0e12;box-shadow:0 0 50px rgba(255,60,150,.35);`;
+  scr.innerHTML = `<div style="font:italic 800 42px/1 Georgia,serif;color:#fff;text-shadow:0 0 20px rgba(255,255,255,.7)">SVITCH</div>`
+    + `<div style="font:600 14px/1 'Segoe UI',sans-serif;letter-spacing:.34em;color:#ffffffdd">CSR 762 Â· GRAND LAUNCH Â· 15 AUGUST</div>`;
   world.appendChild(scr);
-  // backstage: fully hidden â€” full-width black backdrop behind the LED plus tall side
-  // curtains running to the south wall; crew slips in through gaps at the wall corners
+  // backstage behind the 8' stage â€” backdrop + side curtains to the south wall
   const curtain = 'repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 8px, rgba(0,0,0,.12) 8px 22px), #17191c';
-  boxDiv({cx:22.5, cz:125.4, y:0, w:13.8, h:6.5, d:0.22, c:'#17191c', f:{back:curtain, front:curtain}});
-  boxDiv({cx:15.75, cz:128.3, y:0, w:0.22, h:6, d:5.8, c:'#17191c', f:{left:curtain, right:curtain}});
-  boxDiv({cx:29.25, cz:128.3, y:0, w:0.22, h:6, d:5.8, c:'#17191c', f:{left:curtain, right:curtain}});
-  floorText(22.5, 128.8, 'BACKSTAGE', 15, '#70767e');
-  boxDiv({cx:19, cz:129.5, y:0.72, w:2, h:0.08, d:0.9, c:'#a9825d', r:3});
-  boxDiv({cx:18.2, cz:129.5, y:0, w:0.09, h:0.72, d:0.8, c:'#6d747c'});
-  boxDiv({cx:19.8, cz:129.5, y:0, w:0.09, h:0.72, d:0.8, c:'#6d747c'});
-  for(const [bx,bz] of [[26, 129.6], [27.4, 129.4], [26.7, 130.4]])
-    boxDiv({cx:bx, cz:bz, y:0, w:1.1, h:1, d:1.1, c:'#8a6b44',
+  boxDiv({cx:22.5, cz:128.8, y:0, w:17.3, h:5.4, d:0.22, c:'#17191c', f:{back:curtain, front:curtain}});
+  boxDiv({cx:14.05, cz:130.3, y:0, w:0.22, h:5.2, d:2.9, c:'#17191c', f:{left:curtain, right:curtain}});
+  boxDiv({cx:30.95, cz:130.3, y:0, w:0.22, h:5.2, d:2.9, c:'#17191c', f:{left:curtain, right:curtain}});
+  floorText(22.5, 130.4, 'BACKSTAGE', 13, '#70767e');
+  boxDiv({cx:18, cz:130.6, y:0.72, w:2, h:0.08, d:0.9, c:'#a9825d', r:3});
+  boxDiv({cx:17.2, cz:130.6, y:0, w:0.09, h:0.72, d:0.8, c:'#6d747c'});
+  boxDiv({cx:18.8, cz:130.6, y:0, w:0.09, h:0.72, d:0.8, c:'#6d747c'});
+  for(const [bx,bz] of [[26.6, 130.3], [27.9, 130.6], [27.2, 131.2]])
+    boxDiv({cx:bx, cz:bz, y:0, w:1.0, h:0.95, d:1.0, c:'#8a6b44',
       f:{front:'repeating-linear-gradient(rgba(0,0,0,.18) 0 3px, rgba(0,0,0,0) 3px 16px), #8a6b44'}});
   // ---- audience: red carpet aisle, sofa rows in front, chair rows behind
-  flat(22.5, 112.5, 2.4, 17, 1.8, 'linear-gradient(#7e1f2d,#6a1a26)');
-  boxDiv({cx:22.5, cz:124.5, y:0.6, w:12.1, h:0.68, d:0.22, c:'#17191c'});   // skirt under the LED
-  for(const sz of [117.5, 114.8])
+  flat(22.5, 110.8, 2.4, 13.6, 1.8, 'linear-gradient(#7e1f2d,#6a1a26)');
+  for(const sz of [116.5, 113.8])
     for(const sx of [17.3, 20.0, 25.0, 27.7]) deckSofa(sx, sz, 0, 0);
   const chairCols = ['#c9cdd3', '#3f6b54'];
   for(let r=0; r<4; r++){
@@ -665,23 +671,23 @@ function buildEvent(){
   // ---- launch-show extras: reveal bike on a rotating plinth, speakers, stage lights
   plinthEl = document.createElement('div');
   plinthEl.className = 'grp';
-  plinthEl.dataset.base = `translate3d(${22.5*S}px,${-0.6*S}px,${122.4*S}px)`;
+  plinthEl.dataset.base = `translate3d(${22.5*S}px,${-0.62*S}px,${121.1*S}px)`;   // on the V-ramp tip
   plinthEl.style.transform = plinthEl.dataset.base;
-  boxDiv({cx:0, cz:0, y:0, w:2.6, h:0.25, d:2.6, c:'#23262c', r:78,
+  boxDiv({cx:0, cz:0, y:0, w:2.2, h:0.22, d:2.2, c:'#23262c', r:66,
     f:{top:'radial-gradient(circle, #3b4047 0 55%, #2b2f35 56%)'}}, plinthEl);
   const revealBike = document.createElement('div');
   revealBike.className = 'grp';
-  revealBike.style.transform = `translate3d(0,${-0.25*S}px,0)`;
+  revealBike.style.transform = `translate3d(0,${-0.22*S}px,0)`;
   makeBike(revealBike, '#75797f', '#54585e');
   plinthEl.appendChild(revealBike);
   world.appendChild(plinthEl);
-  flat(22.5, 119.5, 16, 5.5, 0.9, 'radial-gradient(ellipse, rgba(255,80,150,.12), rgba(0,0,0,0) 70%)');
-  for(const sx of [15.1, 29.9])
+  flat(22.5, 122.8, 15, 6, 0.9, 'radial-gradient(ellipse, rgba(255,80,150,.12), rgba(0,0,0,0) 70%)');
+  for(const sx of [12.9, 32.1])
     for(let s=0; s<2; s++)
-      boxDiv({cx:sx, cz:121.9, y:s*1.45, w:1.15, h:1.4, d:1.0, c:'#191c20', r:4,
+      boxDiv({cx:sx, cz:126.9, y:s*1.45, w:1.15, h:1.4, d:1.0, c:'#191c20', r:4,
         f:{back:'radial-gradient(circle at 50% 34%, #2e343c 0 17%, rgba(0,0,0,0) 18%), radial-gradient(circle at 50% 72%, #2e343c 0 24%, rgba(0,0,0,0) 25%), #14171b'}});
-  for(const lx of [18, 21, 24, 27])
-    boxDiv({cx:lx, cz:124.6, y:6.35, w:0.32, h:0.38, d:0.32, c:'#191c20', r:5});
+  for(const lx of [19, 21.5, 24, 26])
+    boxDiv({cx:lx, cz:127.6, y:4.15, w:0.32, h:0.38, d:0.32, c:'#191c20', r:5});
 }
 
 /* ---------------------------------------------------------- red doors on the long walls (every 30 ft) */
@@ -709,11 +715,13 @@ const SOLIDS = [
   [30.42, 0.9, 30.58, 7.1],                                // badminton net
   ...CHASSIS_X.map(cx => [cx-0.65, 18, cx+0.65, 66]),      // chassis reserve rows
   [31.9, 70.4, 33.4, 72.6, 1], [31.9, 78.4, 33.4, 80.6, 1], [37.6, 68.2, 39.8, 69.6, 1],  // deck sofas
-  [15.4, 121.1, 29.6, 125.6],                              // stage platform + LED + backdrop
-  [15.5, 125.3, 15.95, 131.3], [29.05, 125.3, 29.5, 131.3],// backstage side curtains
-  [14.4, 121.2, 15.8, 122.6], [29.2, 121.2, 30.6, 122.6],  // speaker stacks
-  [16.1, 116.9, 21.3, 118.1], [23.7, 116.9, 28.9, 118.1],  // sofa row 1
-  [16.1, 114.2, 21.3, 115.4], [23.7, 114.2, 28.9, 115.4],  // sofa row 2
+  [13.9, 125.9, 31.1, 128.9],                              // stage platform + LED + backdrop
+  [19.6, 119.7, 25.4, 122.5],                              // V-ramp tip + plinth
+  [14.8, 120.6, 21.4, 126.1], [23.6, 120.6, 30.2, 126.1],  // V-ramp arms
+  [13.9, 128.9, 14.3, 131.8], [30.7, 128.9, 31.1, 131.8],  // backstage side curtains
+  [12.3, 126.3, 13.5, 127.5], [31.5, 126.3, 32.7, 127.5],  // speaker stacks
+  [16.1, 115.9, 21.3, 117.1], [23.7, 115.9, 28.9, 117.1],  // sofa row 1
+  [16.1, 113.2, 21.3, 114.4], [23.7, 113.2, 28.9, 114.4],  // sofa row 2
   ...[112, 110.2, 108.4, 106.6].flatMap(cz => [[15.7, cz-0.35, 21.1, cz+0.35], [23.7, cz-0.35, 29.1, cz+0.35]]), // chairs
   [42.8, 68.6, 44.2, 86.4, 2],                             // buffet counters (under deck)
   [43.0, 93.1, 44.7, 96.5],                                // mocktail stall (east wall, between the red doors)
@@ -757,7 +765,7 @@ function buildMinimap(){
   zone(35.1, 18, 7.9, 48, 'rgba(110,160,210,.5)');    // chassis reserve
   zone(30, 66, 15, 24, 'rgba(150,120,190,.45)');      // viewing deck + press (up) / food (below)
   zone(27.3, 78, 2.7, 6.2, 'rgba(216,218,222,.5)');   // zig-zag stairs (start at 6th pillar)
-  zone(15.5, 121, 14, 4.4, 'rgba(255,92,138,.6)');    // LED stage
+  zone(13.9, 119.7, 17.2, 9.1, 'rgba(255,92,138,.6)'); // stage + V walkway
   zone(15.8, 105.5, 13.4, 13.5, 'rgba(255,170,80,.35)'); // seating
   zone(36.3, 122.4, 8.3, 8.8, 'rgba(180,60,60,.55)'); // media corner
   document.getElementById('minimap').addEventListener('click', ev => {
