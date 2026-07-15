@@ -735,8 +735,6 @@ function buildFences(){
   fence(29.8, 16, 44.9, 16);
   fence(29.8, 16, 29.8, 66);
   fence(29.8, 66, 30.2, 66);
-  // yellow line: straight mid-hall fence beside the stock, pillar 1 â†’ past pillar 4
-  fence(23.5, 18, 23.5, 58);
 }
 
 /* ---------------------------------------------------------- red doors on the long walls (every 30 ft) */
@@ -778,7 +776,7 @@ const SOLIDS = [
   [43.0, 67.6, 44.7, 71.4, 1],                             // mocktail stall (on the deck, NE corner)
   [29.7, 15.9, 44.9, 16.1], [29.74, 16, 29.86, 66],        // 15 ft fence â€” continuous green line
   [34.9, 102.6, 40.6, 110.4],                              // parked display bikes
-  [29.7, 65.9, 30.3, 66.1], [23.44, 18, 23.56, 58],        // fence-deck connector + yellow line
+  [29.7, 65.9, 30.3, 66.1],                                // fence-deck connector
   [38.3, 122.1, 44.6, 122.5],                              // media-corner rope line (entry gap on the west)
   [32.5, 87.7, 42.7, 89.5, 1],                             // press row on the deck
 ];
@@ -822,9 +820,8 @@ function buildMinimap(){
   zone(11.9, 107.7, 21.2, 9.3, 'rgba(255,92,138,.6)'); // stage + V walkway
   zone(14.7, 77, 15.7, 27.7, 'rgba(255,170,80,.35)');  // seating for 250
   zone(36.3, 122.4, 8.3, 8.8, 'rgba(180,60,60,.55)'); // media corner
-  zone(29.7, 16, 15.2, 0.25, 'rgba(220,224,228,.85)'); // fences (15 ft chain-link)
+  zone(29.7, 16, 15.2, 0.25, 'rgba(220,224,228,.85)'); // fence (15 ft chain-link)
   zone(29.74, 16, 0.15, 50, 'rgba(220,224,228,.85)');
-  zone(23.44, 18, 0.15, 40, 'rgba(220,224,228,.85)');
   document.getElementById('minimap').addEventListener('click', ev => {
     const rect = mm.getBoundingClientRect();
     const x = (ev.clientX - rect.left)/MM, z = (ev.clientY - rect.top)/MM;
