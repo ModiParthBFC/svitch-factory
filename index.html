@@ -112,7 +112,7 @@
   <button class="hbtn" id="btnOver">Overview</button>
   <button class="hbtn" id="btnSpawn">Reset position</button>
 </div>
-<div id="minimap"><div id="mmInner"></div><span id="mmLabel">Svitch Plant</span><div id="mmPlayer"></div><div id="mmBike"></div></div>
+<div id="minimap"><div id="mmInner"></div><span id="mmLabel">Svitch Plant</span><div id="mmPlayer"></div></div>
 <div id="dpad">
   <button class="dbtn" data-k="a">â—€</button>
   <button class="dbtn" data-k="w">â–²</button>
@@ -895,7 +895,6 @@ document.querySelectorAll('#dpad .dbtn').forEach(b => {
 /* ---------------------------------------------------------- walk loop (empty hall: walls only) */
 let last = performance.now();
 const mmPlayer = document.getElementById('mmPlayer');
-const mmBike = document.getElementById('mmBike');
 const mmOff = {x:12, y:14};
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -925,11 +924,6 @@ function tick(now){
     applyCam();
   }
   if(!reduceMotion){
-    lapS += 6.5*dt;
-    const [bx, bz, rot] = lapPos(lapS);
-    lapBike.style.transform = `translate3d(${bx*S}px,0,${bz*S}px) rotateY(${-rot}deg)`;
-    mmBike.style.left = (mmOff.x + bx*MM)+'px';
-    mmBike.style.top = (mmOff.y + bz*MM)+'px';
     plinthAng += 14*dt;
     plinthEl.style.transform = plinthEl.dataset.base + ` rotateY(${plinthAng}deg)`;
   }
@@ -946,7 +940,6 @@ buildCourts();
 buildChassisReserve();
 buildDeck();
 buildEvent();
-buildBikeLap();
 buildFences();
 buildSideDoors();
 buildMinimap();
