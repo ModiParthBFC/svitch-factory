@@ -695,6 +695,33 @@ function buildEvent(){
     boxDiv({cx:lx, cz:115.6, y:4.15, w:0.32, h:0.38, d:0.32, c:'#191c20', r:5});
 }
 
+/* ---------------------------------------------------------- 15 ft chain-link fences (per drawing) */
+function fence(x1, z1, x2, z2){
+  const horiz = Math.abs(x2-x1) > Math.abs(z2-z1);
+  const len = Math.hypot(x2-x1, z2-z1);
+  const cx = (x1+x2)/2, cz = (z1+z2)/2;
+  const mesh = 'repeating-linear-gradient(45deg, rgba(150,156,164,.6) 0 1.5px, rgba(0,0,0,0) 1.5px 11px),'
+    + 'repeating-linear-gradient(-45deg, rgba(150,156,164,.6) 0 1.5px, rgba(0,0,0,0) 1.5px 11px)';
+  boxDiv(horiz
+    ? {cx, cz, y:0, w:len, h:4.4, d:0.04, c:'#8c929a', f:{front:mesh, back:mesh}}
+    : {cx, cz, y:0, w:0.04, h:4.4, d:len, c:'#8c929a', f:{left:mesh, right:mesh}});
+  boxDiv(horiz ? {cx, cz, y:4.42, w:len, h:0.15, d:0.09, c:'#6d747c'}
+               : {cx, cz, y:4.42, w:0.09, h:0.15, d:len, c:'#6d747c'});
+  const n = Math.max(2, Math.round(len/3)+1);
+  for(let i=0; i<n; i++){
+    const t = i/(n-1);
+    boxDiv({cx:x1+(x2-x1)*t, cz:z1+(z2-z1)*t, y:0, w:0.13, h:4.57, d:0.13, c:'#5d6670'});
+  }
+}
+function buildFences(){
+  // purple line: below the vehicle gate, down the stock's inner side, across to the deck corner
+  fence(34.3, 16, 41, 16);          // opening 41 â†’ wall stays clear for the truck
+  fence(34.3, 16, 34.3, 66);
+  fence(30.2, 66, 34.3, 66);
+  // yellow line: straight mid-hall fence beside the stock, pillar 1 â†’ past pillar 4
+  fence(23.5, 18, 23.5, 58);
+}
+
 /* ---------------------------------------------------------- red doors on the long walls (every 30 ft) */
 function buildSideDoors(){
   const STEP = 9.144;                       // 30 feet
@@ -731,6 +758,8 @@ const SOLIDS = [
   ...Array.from({length:6}, (_,r) => 84 - r*1.3).flatMap(cz => [[14.7, cz-0.3, 21.8, cz+0.3], [23.3, cz-0.3, 26.4, cz+0.3]]),
   [42.8, 68.6, 44.2, 86.4, 2],                             // buffet counters (under deck)
   [43.0, 93.1, 44.7, 96.5],                                // mocktail stall (east wall, between the red doors)
+  [34.2, 15.9, 41.1, 16.1], [34.24, 16, 34.36, 66],        // 15 ft fence â€” purple line
+  [30.2, 65.9, 34.3, 66.1], [23.44, 18, 23.56, 58],        // fence connector + yellow line
   [38.3, 122.1, 44.6, 122.5],                              // media-corner rope line (entry gap on the west)
   [32.5, 87.7, 42.7, 89.5, 1],                             // press row on the deck
 ];
@@ -774,6 +803,10 @@ function buildMinimap(){
   zone(13.9, 107.7, 17.2, 9.3, 'rgba(255,92,138,.6)'); // stage + V walkway
   zone(14.7, 77, 15.7, 27.7, 'rgba(255,170,80,.35)');  // seating for 250
   zone(36.3, 122.4, 8.3, 8.8, 'rgba(180,60,60,.55)'); // media corner
+  zone(34.2, 16, 6.8, 0.25, 'rgba(220,224,228,.85)'); // fences (15 ft chain-link)
+  zone(34.24, 16, 0.15, 50, 'rgba(220,224,228,.85)');
+  zone(30.2, 65.9, 4.1, 0.25, 'rgba(220,224,228,.85)');
+  zone(23.44, 18, 0.15, 40, 'rgba(220,224,228,.85)');
   document.getElementById('minimap').addEventListener('click', ev => {
     const rect = mm.getBoundingClientRect();
     const x = (ev.clientX - rect.left)/MM, z = (ev.clientY - rect.top)/MM;
@@ -915,6 +948,7 @@ buildChassisReserve();
 buildDeck();
 buildEvent();
 buildBikeLap();
+buildFences();
 buildSideDoors();
 buildMinimap();
 applyCam();
